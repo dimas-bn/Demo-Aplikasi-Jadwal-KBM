@@ -1,300 +1,1980 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id" class="">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tunggu kehadirannya...</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#0A1930;
-    --ink-deep:#071429;
-    --grid-line:#152645;
-    --line:#8FD6FF;
-    --line-soft:rgba(143,214,255,0.35);
-    --amber:#FFB454;
-    --text:#EAF2FF;
-    --text-muted:#7C93B8;
-    --focus:#FFB454;
-  }
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    min-height:100vh;
-    background:var(--ink);
-    color:var(--text);
-    font-family:'IBM Plex Mono', monospace;
-    overflow-x:hidden;
-    position:relative;
-    display:flex;
-    flex-direction:column;
-  }
-
-  /* ---- blueprint grid backdrop ---- */
-  .grid-bg{
-    position:fixed;
-    inset:0;
-    z-index:0;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size:88px 88px, 88px 88px, 22px 22px, 22px 22px;
-    background-position:-1px -1px;
-    opacity:0.9;
-    pointer-events:none;
-  }
-  .grid-bg::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:radial-gradient(ellipse at 50% 38%, rgba(10,25,48,0) 0%, var(--ink) 78%);
-  }
-
-  .scanline{
-    position:fixed;
-    left:0; right:0;
-    height:140px;
-    top:-140px;
-    background:linear-gradient(180deg, rgba(143,214,255,0) 0%, rgba(143,214,255,0.05) 45%, rgba(143,214,255,0.09) 50%, rgba(143,214,255,0.05) 55%, rgba(143,214,255,0) 100%);
-    animation:scan 7s linear infinite;
-    pointer-events:none;
-    z-index:1;
-  }
-  @keyframes scan{
-    0%{ transform:translateY(0); }
-    100%{ transform:translateY(calc(100vh + 140px)); }
-  }
-
-  main{
-    position:relative;
-    z-index:2;
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:64px 24px 32px;
-    gap:0;
-  }
-
-  .bp-figure{
-    width:min(560px, 88vw);
-    margin-bottom:8px;
-  }
-  .bp-svg{ width:100%; height:auto; display:block; }
-
-  .bp-group path,
-  .bp-group rect,
-  .bp-group line,
-  .bp-group circle{
-    fill:none;
-    stroke:var(--line);
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-    stroke-dasharray:1;
-    stroke-dashoffset:1;
-    filter:drop-shadow(0 0 6px rgba(143,214,255,0.25));
-  }
-  .bp-group{ animation:bp-fade 9s ease-in-out infinite; }
-  @keyframes bp-fade{
-    0%{opacity:0;} 4%{opacity:1;} 84%{opacity:1;} 92%{opacity:0;} 100%{opacity:0;}
-  }
-  .s-frame{ animation:d-frame 9s ease infinite; }
-  @keyframes d-frame{ 0%,6%{stroke-dashoffset:1;} 16%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-topbar{ animation:d-topbar 9s ease infinite; }
-  @keyframes d-topbar{ 0%,16%{stroke-dashoffset:1;} 21%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-dot1{ animation:d-dot1 9s ease infinite; }
-  @keyframes d-dot1{ 0%,21%{stroke-dashoffset:1;} 24%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-dot2{ animation:d-dot2 9s ease infinite; }
-  @keyframes d-dot2{ 0%,24%{stroke-dashoffset:1;} 27%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-dot3{ animation:d-dot3 9s ease infinite; }
-  @keyframes d-dot3{ 0%,27%{stroke-dashoffset:1;} 30%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-header{ animation:d-header 9s ease infinite; }
-  @keyframes d-header{ 0%,30%{stroke-dashoffset:1;} 41%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-block1{ animation:d-block1 9s ease infinite; }
-  @keyframes d-block1{ 0%,41%{stroke-dashoffset:1;} 55%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-block2{ animation:d-block2 9s ease infinite; }
-  @keyframes d-block2{ 0%,55%{stroke-dashoffset:1;} 68%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-  .s-block3{ animation:d-block3 9s ease infinite; }
-  @keyframes d-block3{ 0%,68%{stroke-dashoffset:1;} 80%{stroke-dashoffset:0;} 100%{stroke-dashoffset:0;} }
-
-  .bp-dims{ opacity:0.55; }
-  .bp-corner{ stroke:var(--amber); stroke-width:1.4; }
-
-  .eyebrow{
-    font-size:12px;
-    letter-spacing:0.28em;
-    text-transform:uppercase;
-    color:var(--amber);
-    margin:18px 0 14px;
-  }
-
-  h1{
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:700;
-    font-size:clamp(34px, 6.4vw, 68px);
-    line-height:1.04;
-    letter-spacing:-0.01em;
-    margin:0 0 18px;
-    color:var(--text);
-  }
-  h1 em{
-    font-style:normal;
-    color:var(--line);
-  }
-
-  .subhead{
-    max-width:480px;
-    color:var(--text-muted);
-    font-size:14.5px;
-    line-height:1.7;
-    margin:0 0 26px;
-  }
-
-  .status{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-size:12px;
-    letter-spacing:0.14em;
-    color:var(--line);
-    border:1px solid var(--line-soft);
-    padding:8px 16px;
-    border-radius:999px;
-    margin-bottom:34px;
-    background:rgba(143,214,255,0.04);
-  }
-  .status .cursor{
-    color:var(--amber);
-    animation:blink 1.1s steps(1) infinite;
-  }
-  @keyframes blink{ 50%{ opacity:0; } }
-
-  .wa-cta{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    background:var(--amber);
-    color:var(--ink-deep);
-    text-decoration:none;
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    font-size:13.5px;
-    letter-spacing:0.02em;
-    padding:14px 24px;
-    border-radius:8px;
-    transition:transform .15s ease, filter .15s ease;
-  }
-  .wa-cta:hover{ filter:brightness(1.08); }
-  .wa-cta:active{ transform:translateY(1px); }
-  .wa-cta:focus-visible{
-    outline:2px solid var(--focus);
-    outline-offset:3px;
-  }
-  .wa-cta svg{ width:18px; height:18px; flex:0 0 auto; }
-
-  .wa-note{
-    margin-top:12px;
-    font-size:11.5px;
-    color:var(--text-muted);
-    letter-spacing:0.03em;
-  }
-
-  footer.annotations{
-    position:relative;
-    z-index:2;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-    padding:18px 28px 22px;
-    font-size:10.5px;
-    letter-spacing:0.08em;
-    color:var(--text-muted);
-    border-top:1px solid var(--grid-line);
-    flex-wrap:wrap;
-  }
-  footer.annotations span{ white-space:nowrap; }
-  footer.annotations .mid{ color:var(--line); opacity:0.7; }
-
-  @media (max-width:520px){
-    footer.annotations{ justify-content:center; text-align:center; }
-    footer.annotations .mid{ order:3; width:100%; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    .scanline{ display:none; }
-    .bp-group{ animation:none; opacity:1; }
-    .bp-group path, .bp-group rect, .bp-group line, .bp-group circle{
-      stroke-dashoffset:0;
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aplikasi Jadwal KBM | Demo Sekolah</title>
+<meta name="description" content="Jadwal pelajaran sekolah — dapat diakses publik">
+<meta name="theme-color" content="#1a4078">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jadwal KBM">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50:'#eaf1fb',100:'#cfe0f5',200:'#a3c4ec',300:'#6fa3e0',
+            400:'#3f80d4',500:'#2b63b3',600:'#1f4e8f',700:'#1a4078',
+            800:'#163562',900:'#122a4d'
+          }
+        },
+        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','Segoe UI','Arial','sans-serif'] }
+      }
     }
-    .status .cursor{ animation:none; }
   }
+</script>
+<style>
+  body{font-family:Inter,'Segoe UI',system-ui,Arial,sans-serif}
+  .slot{transition:transform .12s ease,filter .12s ease}
+  .slot:hover{filter:brightness(.94);transform:translateY(-1px)}
+  .scrollbar-thin::-webkit-scrollbar{height:6px;width:6px}
+  .scrollbar-thin::-webkit-scrollbar-thumb{background:transparent;border-radius:99px}
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb{background:#cbd5e1}
+  .scrollbar-thin::-webkit-scrollbar-track{background:transparent}
+  .nav-scroll{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .nav-scroll::-webkit-scrollbar{display:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{animation:spin .8s linear infinite}
+  table.jadwal-tbl{border-collapse:separate;border-spacing:0}
+  table.jadwal-tbl th:first-child{border-top-left-radius:.5rem}
+  table.jadwal-tbl th:last-child{border-top-right-radius:.5rem}
+  .hari-divider td{border-top:3px solid #1f4e8f !important}
+
+  /* ── DARK MODE ── */
+  .dark body{background:#0f172a;color:#e2e8f0}
+  .dark .bg-white{background:#1e293b !important}
+  .dark .bg-slate-100{background:#0f172a !important}
+  .dark .bg-slate-50{background:#1e293b !important}
+  .dark .bg-slate-50\/60{background:rgba(30,41,59,.6) !important}
+  .dark .bg-slate-50\/70{background:rgba(30,41,59,.7) !important}
+  .dark .bg-slate-100\/70{background:rgba(15,23,42,.7) !important}
+  .dark .border-slate-200{border-color:#334155 !important}
+  .dark .border-slate-100{border-color:#1e293b !important}
+  .dark .text-slate-800{color:#e2e8f0 !important}
+  .dark .text-slate-700{color:#cbd5e1 !important}
+  .dark .text-slate-600{color:#94a3b8 !important}
+  .dark .text-slate-500{color:#64748b !important}
+  .dark .text-slate-400{color:#475569 !important}
+  .dark .text-slate-300{color:#334155 !important}
+  .dark .divide-slate-100>*+*{border-color:#1e293b !important}
+  .dark .divide-y>*+*{border-color:#334155 !important}
+  /* Nav */
+  .dark nav.bg-white{background:#1e293b !important}
+  .dark .nav-btn:hover:not(.active){background:#0f172a !important}
+  /* Cards & panels */
+  .dark .shadow-sm{box-shadow:0 1px 3px rgba(0,0,0,.4) !important}
+  .dark .bg-slate-100.bg-slate-100{background:#1e293b !important}
+  /* Table */
+  .dark .jadwal-tbl td{border-color:#334155}
+  .dark .jadwal-tbl tr:hover td{background:#1e293b}
+  .dark .jadwal-tbl .bg-slate-100{background:#0f172a !important}
+  /* Inputs & selects */
+  .dark select,.dark input[type=text],.dark input[type=date],.dark input[type=search]{
+    background:#0f172a !important;color:#e2e8f0 !important;border-color:#334155 !important}
+  /* Istirahat row */
+  .dark .bg-amber-50{background:#1c1208 !important}
+  .dark .text-amber-700{color:#fbbf24 !important}
+  /* Pengumuman */
+  .dark .pg-info    {background:#1e293b;border-left-color:#2b63b3}
+  .dark .pg-penting {background:#1c1a08;border-left-color:#d97706}
+  .dark .pg-libur   {background:#0a1f15;border-left-color:#15875c}
+  .dark .pg-kegiatan{background:#1a1028;border-left-color:#7c3aed}
+  /* Search overlay */
+  .dark .bg-white.rounded-2xl{background:#1e293b !important}
+  .dark .search-cat{background:#0f172a;color:#94a3b8}
+  .dark .search-cat:hover{background:#334155;color:#e2e8f0}
+  .dark .search-result-item:hover,.dark .search-result-item.focused{background:#0f172a}
+  .dark mark{background:#1e3a5f;color:#93c5fd}
+  /* Loading */
+  .dark .text-slate-400{color:#475569 !important}
+  /* Modal */
+  .dark .bg-white.rounded-2xl.p-5,.dark .bg-white.rounded-2xl.p-6{background:#1e293b !important}
+  /* Konflik banner */
+  .dark .bg-red-50{background:#2d0a0a !important}
+  .dark .border-red-200{border-color:#7f1d1d !important}
+  /* Brand light bg */
+  .dark .bg-brand-50{background:#0d1829 !important}
+  /* Transition */
+  body,nav,.bg-white,input,select,textarea{transition:background-color .2s ease,border-color .2s ease,color .2s ease}
+  .search-cat{background:#f1f5f9;color:#64748b}
+  .search-cat:hover{background:#e2e8f0;color:#334155}
+  .active-cat{background:#1a4078 !important;color:#fff !important}
+  .search-result-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;transition:background .1s}
+  .search-result-item:hover,.search-result-item.focused{background:#f0f4f8}
+  .search-result-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:1px}
+  .search-result-title{font-weight:600;font-size:14px;color:#1a202c;margin-bottom:2px}
+  .search-result-sub{font-size:12px;color:#718096;line-height:1.5}
+  mark{background:#dbeafe;color:#1e40af;border-radius:2px;padding:0 1px}
+  .search-empty{text-align:center;padding:40px 16px;color:#94a3b8}
+  table.jadwal-tbl thead th{position:sticky;top:0;z-index:10;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  .pg-info    {border-left:4px solid #2b63b3;background:#eaf1fb}
+  .pg-penting {border-left:4px solid #d97706;background:#fffbeb}
+  .pg-libur   {border-left:4px solid #15875c;background:#eefcf5}
+  .pg-kegiatan{border-left:4px solid #7c3aed;background:#f5f3ff}
+  /* Kalender */
+  .kal-header{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #e2e8f0}
+  .kal-dayname{text-align:center;font-size:11px;font-weight:700;color:#64748b;padding:8px 2px;text-transform:uppercase}
+  .kal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .kal-cell{min-height:80px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:4px;cursor:pointer;transition:background .1s;position:relative}
+  .kal-cell:nth-child(7n){border-right:none}
+  .kal-cell:hover{background:#f8fafc}
+  .kal-cell.today{background:#eaf1fb}
+  .kal-cell.other-month .kal-date{color:#cbd5e1}
+  .kal-cell.selected{outline:2px solid #1a4078;outline-offset:-1px}
+  .kal-date{font-size:12px;font-weight:600;color:#334155;margin-bottom:2px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+  .kal-cell.today .kal-date{background:#1a4078;color:#fff}
+  .kal-dot{height:4px;border-radius:99px;margin-bottom:3px;flex-shrink:0}
+  .kal-event{display:flex;align-items:center;gap:3px;margin-bottom:2px;overflow:hidden}
+  .kal-label{font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155}
+  .dark .kal-label{color:#cbd5e1}
+  .kal-more{font-size:10px;color:#94a3b8;margin-top:1px}
+  /* Dark mode kalender */
+  .dark .kal-header{border-color:#334155}
+  .dark .kal-dayname{color:#475569}
+  .dark .kal-cell{border-color:#334155}
+  .dark .kal-cell:hover{background:#1e293b}
+  .dark .kal-cell.today{background:#1e3a5f}
+  .dark .kal-cell.other-month .kal-date{color:#334155}
+  .dark .kal-date{color:#cbd5e1}
+  .dark .pg-info{background:#1e293b}.dark .pg-penting{background:#1c1a08}
+  .dark .pg-libur{background:#0a1f15}.dark .pg-kegiatan{background:#1a1028}
+
+  /* ── DARK MODE ── */
+  .dark body{background:#0f172a;color:#e2e8f0}
+
+  /* Cards & panels */
+  .dark .bg-white{background:#1e293b !important}
+  .dark .bg-slate-50,.dark .bg-slate-50\/60,.dark .bg-slate-50\/70{background:#0f172a !important}
+  .dark .bg-slate-100,.dark .bg-slate-100\/70{background:#1e293b !important}
+  .dark .border-slate-200{border-color:#334155 !important}
+  .dark .border-slate-100{border-color:#1e293b !important}
+  .dark .border-slate-300{border-color:#475569 !important}
+
+  /* Text */
+  .dark .text-slate-800{color:#f1f5f9 !important}
+  .dark .text-slate-700{color:#e2e8f0 !important}
+  .dark .text-slate-600{color:#cbd5e1 !important}
+  .dark .text-slate-500{color:#94a3b8 !important}
+  .dark .text-slate-400{color:#64748b !important}
+  .dark .text-slate-300{color:#475569 !important}
+
+  /* Inputs & selects */
+  .dark select,.dark input[type=text],.dark input[type=date],.dark input[type=search]{
+    background:#0f172a !important;color:#e2e8f0 !important;border-color:#475569 !important}
+
+  /* Tables */
+  .dark table.jadwal-tbl td{border-color:#1e293b !important}
+  .dark table.jadwal-tbl tr:hover td,.dark tr:hover td{background:#1e293b !important}
+  .dark table.jadwal-tbl .j-jam,.dark .bg-slate-100{background:#162032 !important}
+  .dark .bg-amber-50{background:#1c1505 !important}
+  .dark .text-amber-700{color:#fbbf24 !important}
+  .dark .border-dashed{border-color:#334155 !important}
+
+  /* Search overlay */
+  .dark .search-cat{background:#1e293b;color:#94a3b8}
+  .dark .search-cat:hover{background:#334155;color:#e2e8f0}
+  .dark .active-cat{background:#1a4078 !important;color:#fff !important}
+  .dark .search-result-item:hover,.dark .search-result-item.focused{background:#1e293b}
+  .dark .search-result-title{color:#f1f5f9}
+  .dark .search-result-sub{color:#94a3b8}
+  .dark mark{background:#1e3a5f;color:#93c5fd}
+  .dark .search-empty{color:#475569}
+  .dark .divide-slate-100>*{border-color:#1e293b !important}
+  .dark .bg-slate-50.border-t{background:#162032 !important;border-color:#334155 !important}
+
+  /* Modal */
+  .dark .divide-slate-100>div{border-color:#334155 !important}
+
+  /* Konflik & pills */
+  .dark .bg-red-50,.dark .bg-red-100{background:#2d1515 !important}
+  .dark .text-red-700{color:#fca5a5 !important}
+  .dark .border-red-200{border-color:#7f1d1d !important}
+  .dark .bg-brand-50\/60{background:#1a2744 !important}
+
+  /* Pengumuman */
+  .dark .pg-info    {background:#1e2d45;color:#bfdbfe}
+  .dark .pg-penting {background:#2d1f0a;color:#fde68a}
+  .dark .pg-libur   {background:#0d2b1e;color:#6ee7b7}
+  .dark .pg-kegiatan{background:#1e1244;color:#c4b5fd}
+
+  /* Scrollbar */
+  .dark .scrollbar-thin:hover::-webkit-scrollbar-thumb{background:#475569}
+  .dark .hari-divider td{border-top-color:#3b82f6 !important}
+
+  /* Piket cards */
+  .dark .bg-white.border{background:#1e293b !important;border-color:#334155 !important}
+  .dark .bg-slate-50.rounded-lg{background:#0f172a !important}
+
+  /* Wali kelas table */
+  .dark .divide-y>tr{border-color:#1e293b !important}
 </style>
 </head>
-<body>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-[15px] min-h-screen transition-colors duration-200">
 
-  <div class="grid-bg" aria-hidden="true"></div>
-  <div class="scanline" aria-hidden="true"></div>
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-brand-700 to-brand-600 text-white shadow-lg shadow-brand-900/10 sticky top-0 z-30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+    <span class="text-3xl leading-none">📅</span>
+    <div class="min-w-0 flex-1">
+      <h1 class="text-lg sm:text-xl font-bold tracking-tight truncate">Aplikasi Jadwal KBM</h1>
+      <p id="headerSub" class="text-xs sm:text-sm text-brand-100/90">Memuat data...</p>
+    </div>
+    <button onclick="toggleDark()" id="darkBtn" title="Ganti Tema" class="flex items-center justify-center w-9 h-9 bg-white/15 hover:bg-white/25 border border-white/30 text-white rounded-xl transition-all shrink-0 text-base">🌙</button>
+    <button onclick="openSearch()" title="Pencarian Global" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white px-3 py-2 rounded-xl text-sm font-semibold transition-all shrink-0">
+      <span class="text-base">🔍</span>
+      <span class="hidden sm:inline">Cari</span>
+      <kbd class="hidden sm:inline text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">Ctrl+K</kbd>
+    </button>
+  </div>
+</header>
 
-  <main>
-    <div class="bp-figure">
-      <svg class="bp-svg" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sketsa cetak biru sebuah situs web yang sedang digambar">
-        <g class="bp-corner" aria-hidden="true">
-          <path d="M14 14 L14 30 M14 14 L30 14" pathLength="1"/>
-          <path d="M586 14 L586 30 M586 14 L570 14" pathLength="1"/>
-          <path d="M14 386 L14 370 M14 386 L30 386" pathLength="1"/>
-          <path d="M586 386 L586 370 M586 386 L570 386" pathLength="1"/>
-        </g>
-        <g class="bp-group">
-          <rect class="s-frame" x="20" y="20" width="560" height="340" rx="10" pathLength="1"/>
-          <line class="s-topbar" x1="20" y1="66" x2="580" y2="66" pathLength="1"/>
-          <circle class="s-dot1" cx="42" cy="43" r="6" pathLength="1"/>
-          <circle class="s-dot2" cx="62" cy="43" r="6" pathLength="1"/>
-          <circle class="s-dot3" cx="82" cy="43" r="6" pathLength="1"/>
-          <rect class="s-header" x="46" y="92" width="508" height="52" rx="4" pathLength="1"/>
-          <rect class="s-block1" x="46" y="162" width="230" height="174" rx="4" pathLength="1"/>
-          <rect class="s-block2" x="300" y="162" width="254" height="80" rx="4" pathLength="1"/>
-          <rect class="s-block3" x="300" y="256" width="254" height="80" rx="4" pathLength="1"/>
-        </g>
-        <g class="bp-dims" font-family="IBM Plex Mono, monospace">
-          <line x1="20" y1="370" x2="580" y2="370" stroke="var(--amber)" stroke-width="1" pathLength="1"/>
-          <line x1="20" y1="364" x2="20" y2="376" stroke="var(--amber)" stroke-width="1"/>
-          <line x1="580" y1="364" x2="580" y2="376" stroke="var(--amber)" stroke-width="1"/>
-          <text x="300" y="392" fill="var(--amber)" font-size="10" text-anchor="middle">SKALA 1:1 — REV. 01</text>
-        </g>
-      </svg>
+<!-- SEARCH OVERLAY -->
+<div id="searchOverlay" onclick="if(event.target===this)closeSearch()" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] items-start justify-center pt-[10vh] px-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+
+    <!-- Search input -->
+    <div class="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200">
+      <span class="text-xl shrink-0">🔍</span>
+      <input id="searchInput" type="text" placeholder="Cari guru, kelas, atau mata pelajaran..." oninput="runSearch()" onkeydown="handleSearchKey(event)"
+        class="flex-1 text-base text-slate-800 placeholder-slate-400 outline-none bg-transparent">
+      <button onclick="closeSearch()" class="text-slate-400 hover:text-slate-600 text-xl leading-none shrink-0">✕</button>
     </div>
 
-    <p class="eyebrow">Catatan Perancang</p>
-    <h1>Website ini sedang<br><em>dalam pengembangan.</em></h1>
-    <p class="subhead">Kami sedang menyusun setiap kolom, jarak, dan detail sebelum membukanya untuk umum. Tunggu kehadirannya.</p>
+    <!-- Kategori filter -->
+    <div class="flex gap-2 px-4 py-2.5 border-b border-slate-100 overflow-x-auto">
+      <button class="search-cat active-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="semua" onclick="setCat('semua',this)">Semua</button>
+      <button class="search-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="guru" onclick="setCat('guru',this)">👤 Guru</button>
+      <button class="search-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="kelas" onclick="setCat('kelas',this)">🏫 Kelas</button>
+      <button class="search-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="mapel" onclick="setCat('mapel',this)">📖 Mapel</button>
+      <button class="search-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="wali" onclick="setCat('wali',this)">🧑‍🏫 Wali Kelas</button>
+      <button class="search-cat shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-colors" data-cat="piket" onclick="setCat('piket',this)">🗓️ Piket</button>
+    </div>
 
-    <div class="status">STATUS: DALAM PENGERJAAN<span class="cursor">_</span></div>
+    <!-- Results -->
+    <div id="searchResults" class="overflow-y-auto max-h-[55vh] divide-y divide-slate-100 scrollbar-thin"></div>
 
-    <a class="wa-cta" href="https://wa.me/6285641051211?text=Halo%2C%20saya%20ingin%20tahu%20perkembangan%20situs%20ini" target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16.02 3C9.4 3 4 8.37 4 15c0 2.36.68 4.55 1.87 6.4L4 29l7.8-1.83A11.9 11.9 0 0 0 16.02 27C22.63 27 28 21.63 28 15S22.63 3 16.02 3Zm0 2c5.53 0 10 4.47 10 10s-4.47 10-10 10a9.9 9.9 0 0 1-5.06-1.39l-.36-.21-4.24 1 1.03-4.13-.24-.38A9.87 9.87 0 0 1 6.02 15c0-5.53 4.47-10 10-10Zm-3.3 5.3c-.2 0-.53.08-.8.38-.28.3-1.06 1.03-1.06 2.5s1.08 2.9 1.23 3.1c.15.2 2.1 3.3 5.2 4.5 2.58 1 3.1.8 3.66.75.55-.05 1.78-.73 2.03-1.43.25-.7.25-1.3.18-1.43-.08-.13-.28-.2-.58-.35-.3-.15-1.78-.88-2.05-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.18.2-.35.23-.65.08-.3-.15-1.25-.46-2.38-1.46-.88-.78-1.48-1.75-1.65-2.05-.18-.3-.02-.46.13-.61.13-.13.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.68-1.68-.95-2.3-.24-.58-.5-.5-.68-.5Z"/></svg>
-      Chat via WhatsApp
-    </a>
-    <p class="wa-note">Klik untuk langsung ngobrol soal perkembangan website ini.</p>
+    <!-- Footer hint -->
+    <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center gap-4 text-[11px] text-slate-400">
+      <span><kbd class="bg-slate-200 px-1.5 py-0.5 rounded font-mono">↑↓</kbd> navigasi</span>
+      <span><kbd class="bg-slate-200 px-1.5 py-0.5 rounded font-mono">Enter</kbd> buka</span>
+      <span><kbd class="bg-slate-200 px-1.5 py-0.5 rounded font-mono">Esc</kbd> tutup</span>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="flex flex-col items-center justify-center py-24 text-slate-400 gap-3">
+  <div class="spinner w-9 h-9 rounded-full border-4 border-slate-200 border-t-brand-600"></div>
+  <span class="text-base">Memuat jadwal...</span>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+  <!-- NAV TABS -->
+  <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-[65px] sm:top-[69px] z-20 shadow-sm">
+    <div class="max-w-7xl mx-auto flex overflow-x-auto nav-scroll">
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-brand-700 dark:text-brand-300 border-b-[3px] border-brand-600 -mb-px transition-colors" data-tab="hari-ini" onclick="showTab('hari-ini',this)">📅 Hari Ini</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="jadwal-kelas" onclick="showTab('jadwal-kelas',this)">🏫 Jadwal Kelas</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="jadwal-guru" onclick="showTab('jadwal-guru',this)">👤 Jadwal Guru</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="jadwal-mapel" onclick="showTab('jadwal-mapel',this)">📖 Jadwal Mapel</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="wali-kelas" onclick="showTab('wali-kelas',this)">🧑‍🏫 Wali Kelas</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="piket-guru" onclick="showTab('piket-guru',this)">🗓️ Piket Harian</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="pengumuman" onclick="showTab('pengumuman',this)">📢 Pengumuman</button>
+      <button class="nav-btn shrink-0 px-5 sm:px-6 py-3.5 text-[15px] font-semibold text-slate-500 dark:text-slate-400 border-b-[3px] border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 -mb-px transition-colors" data-tab="kalender" onclick="showTab('kalender',this)">📆 Kalender</button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 py-5">
+
+    <!-- TAB: HARI INI -->
+    <section id="tab-hari-ini" class="tab-section block">
+
+      <!-- Banner info hari & jam sekarang -->
+      <div class="bg-gradient-to-r from-brand-700 to-brand-600 text-white rounded-xl p-4 mb-4 flex flex-wrap items-center gap-4 shadow-sm">
+        <div class="text-3xl">📅</div>
+        <div class="flex-1 min-w-[160px]">
+          <div id="hariIniLabel" class="font-bold text-lg sm:text-xl"></div>
+          <div id="hariIniTanggal" class="text-sm text-brand-100/90 mt-0.5"></div>
+        </div>
+        <div class="text-right">
+          <div id="jamSekarang" class="font-mono text-2xl font-bold tabular-nums"></div>
+          <div id="statusJP" class="text-xs text-brand-100/80 mt-0.5"></div>
+        </div>
+      </div>
+
+      <!-- Filter kelas & JP -->
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 shadow-sm">
+        <!-- Baris 1: Kelas Saya -->
+        <div class="flex flex-wrap gap-3 items-center mb-3 pb-3 border-b border-slate-100 dark:border-slate-700">
+          <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+            <span class="text-xl shrink-0">🎒</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-1">KELAS SAYA</div>
+              <select id="filterKelasSaya" onchange="simpanKelasSaya()" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="">— Pilih kelas saya —</option>
+              </select>
+            </div>
+          </div>
+          <div id="kelasSayaBadge" class="hidden items-center gap-2 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-xl px-4 py-2.5">
+            <span class="text-brand-700 dark:text-brand-300 font-bold text-sm" id="kelasSayaNama"></span>
+            <button onclick="hapusKelasSaya()" class="text-brand-400 hover:text-brand-700 dark:hover:text-brand-200 text-xs font-bold ml-1" title="Hapus pilihan">✕</button>
+          </div>
+        </div>
+        <!-- Baris 2: Filter tambahan -->
+        <div class="flex flex-wrap gap-3 items-center">
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-slate-400 dark:text-slate-500">TAMPILKAN</label>
+            <select id="filterJPHariIni" onchange="renderHariIni()" class="rounded-lg border border-slate-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="semua">Semua JP</option>
+              <option value="sekarang">JP Sekarang Saja</option>
+              <option value="sisa">JP Tersisa Hari Ini</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-slate-400 dark:text-slate-500">TINGKAT</label>
+            <select id="filterTingkatHariIni" onchange="renderHariIni()" class="rounded-lg border border-slate-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="">Semua Tingkat</option>
+              <option value="KELAS X">Kelas X</option>
+              <option value="KELAS XI">Kelas XI</option>
+              <option value="KELAS XII">Kelas XII</option>
+            </select>
+          </div>
+          <div id="hariIniStats" class="flex gap-4 ml-auto flex-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Piket hari ini -->
+      <!-- Banner pengumuman aktif -->
+      <div id="pengumumanBanner" class="mb-4"></div>
+
+      <!-- Piket hari ini -->
+      <div id="piketHariIni" class="mb-4"></div>
+
+      <!-- Jadwal hari ini -->
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-auto max-h-[65vh] scrollbar-thin" id="jadwalHariIniWrap"></div>
+      </div>
+
+    </section>
+
+    <!-- TAB: JADWAL KELAS -->
+    <section id="tab-jadwal-kelas" class="tab-section hidden">
+      <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex flex-wrap gap-4 items-center shadow-sm">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-semibold text-slate-500">Kelas</label>
+          <select id="filterKelas" onchange="renderJadwalKelas()" class="rounded-lg border border-slate-300 text-base px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-semibold text-slate-500">Hari</label>
+          <select id="filterHari" onchange="renderJadwalKelas()" class="rounded-lg border border-slate-300 text-base px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+            <option value="">Semua Hari</option>
+            <option>SENIN</option><option>SELASA</option><option>RABU</option><option>KAMIS</option><option>JUMAT</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="legendKelas" class="flex flex-wrap gap-x-4 gap-y-2 mb-3 px-1 text-sm"></div>
+
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-auto max-h-[70vh] scrollbar-thin" id="jadwalKelasWrap"></div>
+      </div>
+    </section>
+
+    <!-- TAB: JADWAL GURU -->
+    <section id="tab-jadwal-guru" class="tab-section hidden">
+      <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex flex-wrap gap-4 items-center shadow-sm">
+        <div class="flex items-center gap-2 flex-1 min-w-[260px]">
+          <label class="text-sm font-semibold text-slate-500 shrink-0">Guru</label>
+          <select id="filterGuru" onchange="renderJadwalGuru()" class="w-full rounded-lg border border-slate-300 text-base px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></select>
+        </div>
+      </div>
+
+      <div id="guruInfoBar" class="mb-4"></div>
+
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-auto max-h-[70vh] scrollbar-thin" id="jadwalGuruWrap"></div>
+      </div>
+    </section>
+
+    <!-- TAB: JADWAL MAPEL -->
+    <section id="tab-jadwal-mapel" class="tab-section hidden">
+      <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex flex-wrap gap-4 items-center shadow-sm">
+        <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+          <label class="text-sm font-semibold text-slate-500 shrink-0">Mapel</label>
+          <select id="filterMapel" onchange="renderJadwalMapel()" class="w-full rounded-lg border border-slate-300 text-base px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-semibold text-slate-500">Hari</label>
+          <select id="filterHariMapel" onchange="renderJadwalMapel()" class="rounded-lg border border-slate-300 text-base px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+            <option value="">Semua Hari</option>
+            <option>SENIN</option><option>SELASA</option><option>RABU</option><option>KAMIS</option><option>JUMAT</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="mapelInfoBar" class="mb-4"></div>
+
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-4">
+        <div class="px-4 pt-3 pb-1 text-sm font-bold text-slate-500">📊 Grid Ringkas — Kelas yang Diajar per Hari &amp; Jam</div>
+        <div class="overflow-auto max-h-[50vh] scrollbar-thin" id="jadwalMapelGrid"></div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="px-4 pt-3 pb-1 text-sm font-bold text-slate-500">📋 Tabel Detail</div>
+        <div class="overflow-auto max-h-[70vh] scrollbar-thin" id="jadwalMapelWrap"></div>
+      </div>
+    </section>
+
+    <!-- TAB: WALI KELAS -->
+    <section id="tab-wali-kelas" class="tab-section hidden">
+      <div class="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex flex-wrap gap-4 items-center shadow-sm">
+        <input id="searchWaliPublik" placeholder="🔍 Cari kelas atau nama guru..." oninput="renderWaliPublik()" class="flex-1 min-w-[200px] max-w-xs rounded-lg border border-slate-300 text-base px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-auto max-h-[70vh] scrollbar-thin">
+          <table class="jadwal-tbl w-full text-sm">
+            <thead><tr>
+              <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Kelas</th>
+              <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Wali Kelas / PA</th>
+              <th class="px-3 py-3 text-center font-semibold bg-brand-700 text-white w-20">Kode</th>
+            </tr></thead>
+            <tbody id="waliPublikBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: PIKET GURU -->
+    <section id="tab-piket-guru" class="tab-section hidden">
+      <div id="piketPublikContent" class="grid gap-4"></div>
+    </section>
+
+    <!-- TAB: PENGUMUMAN -->
+    <section id="tab-pengumuman" class="tab-section hidden">
+      <div id="pengumumanListPublik"></div>
+    </section>
+
+    <!-- TAB: KALENDER AKADEMIK -->
+    <section id="tab-kalender" class="tab-section hidden">
+
+      <!-- Navigasi bulan & tahun -->
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 flex items-center gap-3 shadow-sm">
+        <button onclick="kalNav(-1)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold transition-colors">‹</button>
+        <div class="flex-1 text-center">
+          <div id="kalBulanLabel" class="font-bold text-base text-slate-800 dark:text-slate-100"></div>
+        </div>
+        <button onclick="kalNav(1)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold transition-colors">›</button>
+        <button onclick="kalGoToday()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors">Hari Ini</button>
+      </div>
+
+      <!-- Legend kategori -->
+      <div class="flex flex-wrap gap-3 mb-4 px-1" id="kalLegend"></div>
+
+      <!-- Grid kalender -->
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden mb-4">
+        <div id="kalGrid"></div>
+      </div>
+
+      <!-- Daftar event bulan ini -->
+      <div id="kalDaftar"></div>
+
+    </section>
+
   </main>
+</div>
 
-  <footer class="annotations">
-    <span>GRID 22PX</span>
-    <span class="mid">© <span id="year"></span> — dikerjakan oleh Dimas BN</span>
-    <span>CETAK BIRU 600×400</span>
-  </footer>
+<!-- MODAL DETAIL -->
+<div id="modalBg" onclick="if(event.target===this)closeModal()" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-[2px] z-50 items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-5 sm:p-6 max-w-sm w-full shadow-2xl">
+    <h3 id="modalTitle" class="text-lg font-bold text-brand-700 mb-3">Detail</h3>
+    <div id="modalBody" class="divide-y divide-slate-100"></div>
+    <button onclick="closeModal()" class="mt-5 w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-base font-semibold rounded-lg transition-colors">Tutup</button>
+  </div>
+</div>
 
 <script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby76A3gmjpGoUgMXaU1-FIOtcHXGoCFB_57mxVqgi25_Trbi-GslLK-Qc4-TLhBCnlK2A/exec';
+const HARI  = ['SENIN','SELASA','RABU','KAMIS','JUMAT'];
+const HARI_LENGKAP = {SENIN:'Senin',SELASA:'Selasa',RABU:'Rabu',KAMIS:'Kamis',JUMAT:'Jumat'};
+const JAM   = [1,2,3,4,5,6,7,8,9,10];
+const COLORS  = ['#e6f5ee','#e8f0fb','#fff3e0','#f3e8ff','#fdecea','#e0f7fa','#f9fbe7','#fce4ec','#ede7f6','#e0f2f1','#fff8e1','#efebe9','#e8eaf6','#f1f8e9','#fbe9e7'];
+const BORDERS = ['#2ea874','#4a90d9','#f09b00','#9b59b6','#e74c3c','#00acc1','#9ccc65','#e91e8c','#7e57c2','#26a69a','#ffca28','#8d6e63','#5c6bc0','#7cb342','#ff7043'];
+let D = {};
 
-</body>
-</html>
+function jamUntukHari(hari) {
+  // Jumat tidak punya JP 9 dan 10
+  if (hari === 'JUMAT') return JAM.filter(j => j !== 9 && j !== 10);
+  return JAM;
+}
+
+function labelUntukHari(hari) {
+  return hari === 'JUMAT' ? (D.jam_label_jumat || {}) : (D.jam_label_reguler || D.jam_label || {});
+}
+
+// ── PENCARIAN GLOBAL ──────────────────────────────────────────
+
+let searchCat = 'semua';
+let searchFocusIdx = -1;
+
+function openSearch() {
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  setTimeout(() => {
+    const inp = document.getElementById('searchInput');
+    inp.value = '';
+    inp.focus();
+    document.getElementById('searchResults').innerHTML =
+      `<div class="search-empty"><div class="icon">🔍</div><div class="font-semibold text-slate-500">Ketik untuk mencari...</div><div class="text-xs mt-1">Cari nama guru, kelas, atau mata pelajaran</div></div>`;
+  }, 50);
+}
+
+function closeSearch() {
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.add('hidden');
+  overlay.classList.remove('flex');
+  searchFocusIdx = -1;
+}
+
+function setCat(cat, btn) {
+  searchCat = cat;
+  document.querySelectorAll('.search-cat').forEach(b => b.classList.remove('active-cat'));
+  btn.classList.add('active-cat');
+  runSearch();
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\\\]/g,'\\\\$&') + ')', 'gi');
+  return String(text).replace(re, '<mark>$1</mark>');
+}
+
+function runSearch() {
+  const q   = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  const el  = document.getElementById('searchResults');
+  searchFocusIdx = -1;
+
+  if (!q) {
+    el.innerHTML = `<div class="search-empty"><div class="icon">🔍</div><div class="font-semibold text-slate-500">Ketik untuk mencari...</div><div class="text-xs mt-1">Cari nama guru, kelas, atau mata pelajaran</div></div>`;
+    return;
+  }
+  if (!D.guru) { el.innerHTML = '<div class="search-empty"><div class="icon">⏳</div><div>Data belum dimuat</div></div>'; return; }
+
+  let results = [];
+
+  // ── Guru ──────────────────────────────────────────────────
+  if (searchCat === 'semua' || searchCat === 'guru') {
+    Object.entries(D.guru).forEach(([kode, g]) => {
+      if (g.nama.toLowerCase().includes(q) || kode.includes(q) || g.mapel.toLowerCase().includes(q)) {
+        const beban = computeBebanMap()[kode] || 0;
+        results.push({
+          type:'guru', icon:'👤', iconBg:'#e8f0fb', iconColor:'#1d5fa8',
+          title: g.nama,
+          sub: `Kode <b>${kode}</b> · ${g.mapel} · ${beban} JP/minggu`,
+          action: () => { closeSearch(); showTab('jadwal-guru', document.querySelector('[data-tab=jadwal-guru]')); setTimeout(()=>{ const s=document.getElementById('filterGuru'); s.value=kode; renderJadwalGuru(); },100); },
+          q
+        });
+      }
+    });
+  }
+
+  // ── Kelas ─────────────────────────────────────────────────
+  if (searchCat === 'semua' || searchCat === 'kelas') {
+    (D.kelas || []).forEach(kelas => {
+      if (kelas.toLowerCase().includes(q)) {
+        const kodeWali = (D.wali || {})[kelas] || '';
+        const gWali    = kodeWali ? D.guru[kodeWali] : null;
+        results.push({
+          type:'kelas', icon:'🏫', iconBg:'#e6f5ee', iconColor:'#15875c',
+          title: kelas,
+          sub: `Wali Kelas: ${gWali ? gWali.nama : 'Belum ditentukan'}`,
+          action: () => { closeSearch(); showTab('jadwal-kelas', document.querySelector('[data-tab=jadwal-kelas]')); setTimeout(()=>{ const s=document.getElementById('filterKelas'); s.value=kelas; renderJadwalKelas(); },100); },
+          q
+        });
+      }
+    });
+  }
+
+  // ── Mata Pelajaran ────────────────────────────────────────
+  if (searchCat === 'semua' || searchCat === 'mapel') {
+    const mapelSet = {};
+    Object.values(D.guru).forEach(g => {
+      if (!mapelSet[g.mapel]) mapelSet[g.mapel] = 0;
+      mapelSet[g.mapel]++;
+    });
+    Object.keys(mapelSet).sort().forEach(mapel => {
+      if (mapel.toLowerCase().includes(q)) {
+        const jumlahGuru = mapelSet[mapel];
+        results.push({
+          type:'mapel', icon:'📖', iconBg:'#f3e8ff', iconColor:'#7c3aed',
+          title: mapel,
+          sub: `Diampu oleh ${jumlahGuru} guru`,
+          action: () => { closeSearch(); showTab('jadwal-mapel', document.querySelector('[data-tab=jadwal-mapel]')); setTimeout(()=>{ const s=document.getElementById('filterMapel'); s.value=mapel; renderJadwalMapel(); },100); },
+          q
+        });
+      }
+    });
+  }
+
+  // ── Wali Kelas ────────────────────────────────────────────
+  if (searchCat === 'semua' || searchCat === 'wali') {
+    Object.entries(D.wali || {}).forEach(([kelas, kode]) => {
+      const g = kode ? D.guru[kode] : null;
+      if (!g) return;
+      if (g.nama.toLowerCase().includes(q) || kelas.toLowerCase().includes(q)) {
+        results.push({
+          type:'wali', icon:'🧑‍🏫', iconBg:'#fff3e0', iconColor:'#b06a00',
+          title: `Wali ${kelas}`,
+          sub: `${g.nama} · ${g.mapel}`,
+          action: () => { closeSearch(); showTab('wali-kelas', document.querySelector('[data-tab=wali-kelas]')); },
+          q
+        });
+      }
+    });
+  }
+
+  // ── Piket ─────────────────────────────────────────────────
+  if (searchCat === 'semua' || searchCat === 'piket') {
+    Object.entries(D.piket || {}).forEach(([hari, slotList]) => {
+      slotList.forEach(s => {
+        const kode = typeof s === 'object' ? s.kode : s;
+        const ket  = typeof s === 'object' ? (s.ket || '') : '';
+        const pin  = typeof s === 'object' ? s.pin : false;
+        const g = kode ? D.guru[String(kode)] : null;
+        if (!g) return;
+        if (g.nama.toLowerCase().includes(q) || String(kode).includes(q) || ket.toLowerCase().includes(q)) {
+          results.push({
+            type:'piket', icon:'🗓️', iconBg:'#fdecea', iconColor:'#c0392b',
+            title: (pin ? '📌 ' : '') + g.nama,
+            sub: `Piket hari ${HARI_LENGKAP[hari] || hari}${ket ? ' · ' + ket : ''}`,
+            action: () => { closeSearch(); showTab('piket-guru', document.querySelector('[data-tab=piket-guru]')); },
+            q
+          });
+        }
+      });
+    });
+  }
+
+  if (!results.length) {
+    el.innerHTML = `<div class="search-empty"><div class="icon">😕</div><div class="font-semibold text-slate-500">Tidak ditemukan</div><div class="text-xs mt-1">Coba kata kunci lain</div></div>`;
+    return;
+  }
+
+  // Batas 40 hasil
+  const shown = results.slice(0, 40);
+  const typeLabel = { guru:'Guru', kelas:'Kelas', mapel:'Mata Pelajaran', wali:'Wali Kelas', piket:'Piket' };
+  el.innerHTML = shown.map((r, idx) => {
+    const hl = (t) => highlight(t, r.q);
+    return `<div class="search-result-item" data-idx="${idx}" onclick="searchResultClick(${idx})">
+      <div class="search-result-icon" style="background:${r.iconBg}">${r.icon}</div>
+      <div class="min-w-0 flex-1">
+        <div class="search-result-title">${hl(r.title)}</div>
+        <div class="search-result-sub">${r.sub}</div>
+      </div>
+      <span class="shrink-0 mt-1 text-[10px] px-2 py-0.5 rounded-full font-semibold" style="background:${r.iconBg};color:${r.iconColor}">${typeLabel[r.type]||r.type}</span>
+    </div>`;
+  }).join('');
+
+  if (results.length > 40) {
+    el.innerHTML += `<div class="text-center py-3 text-xs text-slate-400">… dan ${results.length-40} hasil lainnya. Persempit pencarian.</div>`;
+  }
+
+  // simpan actions di closure
+  el._searchActions = shown.map(r => r.action);
+}
+
+function searchResultClick(idx) {
+  const el = document.getElementById('searchResults');
+  if (el._searchActions && el._searchActions[idx]) el._searchActions[idx]();
+}
+
+function handleSearchKey(e) {
+  const el    = document.getElementById('searchResults');
+  const items = el.querySelectorAll('.search-result-item');
+  if (!items.length) {
+    if (e.key === 'Escape') closeSearch();
+    return;
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    searchFocusIdx = Math.min(searchFocusIdx + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    searchFocusIdx = Math.max(searchFocusIdx - 1, 0);
+  } else if (e.key === 'Enter') {
+    if (searchFocusIdx >= 0) { searchResultClick(searchFocusIdx); return; }
+    if (items.length === 1) { searchResultClick(0); return; }
+  } else if (e.key === 'Escape') {
+    closeSearch(); return;
+  } else { return; }
+  items.forEach((it, i) => {
+    it.classList.toggle('focused', i === searchFocusIdx);
+    if (i === searchFocusIdx) it.scrollIntoView({ block:'nearest' });
+  });
+}
+
+// Keyboard shortcut Ctrl+K / Cmd+K
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+  if (e.key === 'Escape' && !document.getElementById('searchOverlay').classList.contains('hidden')) closeSearch();
+});
+
+// ── PENGUMUMAN PUBLIK ─────────────────────────────────────────
+
+const TIPE_PG = {
+  info:     { icon:'ℹ️', cls:'pg-info',     tc:'#1e40af' },
+  penting:  { icon:'⚠️', cls:'pg-penting',  tc:'#92400e' },
+  libur:    { icon:'🏖️', cls:'pg-libur',    tc:'#065f46' },
+  kegiatan: { icon:'🎉', cls:'pg-kegiatan', tc:'#5b21b6' },
+};
+
+function buildPgCard(p, compact) {
+  const t = TIPE_PG[p.tipe] || TIPE_PG.info;
+  const masa = p.tglMulai ? (p.tglMulai + (p.tglSelesai ? ' – '+p.tglSelesai : '')) : '';
+  if (compact) return `<div class="${t.cls} rounded-xl px-4 py-3 flex items-start gap-3">
+    <span class="text-xl shrink-0 mt-0.5">${t.icon}</span>
+    <div class="flex-1 min-w-0">
+      <div class="font-bold text-sm" style="color:${t.tc}">${p.judul}</div>
+      ${p.isi ? `<div class="text-xs text-slate-600 mt-0.5">${p.isi}</div>` : ''}
+    </div>
+    ${masa ? `<div class="text-[11px] text-slate-400 whitespace-nowrap shrink-0 mt-0.5">${masa}</div>` : ''}
+  </div>`;
+  return `<div class="${t.cls} rounded-xl p-5 shadow-sm mb-3">
+    <div class="flex items-start gap-3 mb-2">
+      <span class="text-2xl shrink-0">${t.icon}</span>
+      <div class="flex-1 min-w-0">
+        <div class="font-bold text-base" style="color:${t.tc}">${p.judul}</div>
+        ${masa ? `<div class="text-xs text-slate-400 mt-0.5">${masa}</div>` : ''}
+      </div>
+    </div>
+    ${p.isi ? `<div class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">${p.isi}</div>` : ''}
+  </div>`;
+}
+
+function renderPengumumanBanner() {
+  const el   = document.getElementById('pengumumanBanner');
+  if (!el) return;
+  const list = D.pengumuman || [];
+  if (!list.length) { el.innerHTML=''; return; }
+  const shown = list.slice(0,3);
+  const more  = list.length > 3 ? `<button onclick="showTab('pengumuman',document.querySelector('[data-tab=pengumuman]'))" class="text-xs font-semibold text-brand-600 hover:underline mt-1 text-right block">Lihat semua ${list.length} pengumuman →</button>` : '';
+  el.innerHTML = `<div class="flex flex-col gap-2">${shown.map(p=>buildPgCard(p,true)).join('')}${more}</div>`;
+}
+
+function renderPengumumanPublik() {
+  const el   = document.getElementById('pengumumanListPublik');
+  const list = D.pengumuman || [];
+  if (!list.length) {
+    el.innerHTML = `<div class="text-center py-16 text-slate-400"><div class="text-5xl mb-3">📭</div><div class="font-semibold">Tidak ada pengumuman aktif saat ini</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(p => buildPgCard(p, false)).join('');
+}
+
+// ── DARK MODE ─────────────────────────────────────────────────
+
+function applyDark(isDark) {
+  const html = document.documentElement;
+  const btn  = document.getElementById('darkBtn');
+  if (isDark) {
+    html.classList.add('dark');
+    if (btn) btn.textContent = '☀️';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#0f172a');
+  } else {
+    html.classList.remove('dark');
+    if (btn) btn.textContent = '🌙';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#1a4078');
+  }
+}
+
+function toggleDark() {
+  const isDark = !document.documentElement.classList.contains('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  applyDark(isDark);
+}
+
+// Inisialisasi: cek localStorage, lalu system preference
+(function initDark() {
+  const saved  = localStorage.getItem('theme');
+  const prefer = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyDark(saved ? saved === 'dark' : prefer);
+  // Ikuti perubahan system preference (kalau user belum set manual)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('theme')) applyDark(e.matches);
+  });
+})();
+
+// ── KALENDER AKADEMIK ─────────────────────────────────────────
+
+const KAT_PUB = {
+  'libur-nasional': { label:'🇮🇩 Libur Nasional', color:'#dc2626', bg:'#fef2f2', dot:'#dc2626' },
+  'libur-sekolah':  { label:'🏫 Libur Sekolah',   color:'#d97706', bg:'#fffbeb', dot:'#d97706' },
+  'ujian':          { label:'📝 Ujian',            color:'#7c3aed', bg:'#f5f3ff', dot:'#7c3aed' },
+  'kegiatan':       { label:'🎉 Kegiatan',         color:'#15875c', bg:'#f0fdf4', dot:'#15875c' },
+  'lainnya':        { label:'📌 Lainnya',          color:'#1d5fa8', bg:'#eff6ff', dot:'#1d5fa8' },
+};
+const NAMA_BULAN_KAL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const NAMA_HARI_KAL  = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+let _kalTahun  = new Date().getFullYear();
+let _kalBulan  = new Date().getMonth(); // 0-11
+let _kalSelect = null; // tanggal yang diklik
+
+function kalNav(delta) {
+  _kalBulan += delta;
+  if (_kalBulan > 11) { _kalBulan = 0; _kalTahun++; }
+  if (_kalBulan < 0)  { _kalBulan = 11; _kalTahun--; }
+  renderKalender();
+}
+
+function kalGoToday() {
+  _kalTahun = new Date().getFullYear();
+  _kalBulan = new Date().getMonth();
+  _kalSelect = null;
+  renderKalender();
+}
+
+// Helper: parse 'YYYY-MM-DD' sebagai tanggal LOKAL (bukan UTC)
+function parseLocalDate(str) {
+  if (!str) return null;
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d); // bulan 0-indexed, jam = 00:00:00 lokal
+}
+
+// Helper: format Date ke 'YYYY-MM-DD' dalam waktu LOKAL
+function toLocalKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// Kembangkan event multi-hari menjadi set tanggal
+function buildEventMap(list) {
+  const map = {}; // 'YYYY-MM-DD' → [event, ...]
+  list.forEach(e => {
+    const start = parseLocalDate(e.tglMulai);
+    const end   = parseLocalDate(e.tglSelesai || e.tglMulai);
+    if (!start || !end) return;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = toLocalKey(d);
+      if (!map[key]) map[key] = [];
+      map[key].push(e);
+    }
+  });
+  return map;
+}
+
+function renderKalender() {
+  const kalList = D.kalender || [];
+  const today   = new Date(); today.setHours(0,0,0,0);
+  const todayStr= toLocalKey(today);
+  const eventMap= buildEventMap(kalList);
+
+  // Header label
+  document.getElementById('kalBulanLabel').textContent =
+    `${NAMA_BULAN_KAL[_kalBulan]} ${_kalTahun}`;
+
+  // Legend
+  const usedKat = new Set(kalList.map(e => e.kategori));
+  document.getElementById('kalLegend').innerHTML = [...usedKat].map(k => {
+    const kt = KAT_PUB[k] || KAT_PUB.lainnya;
+    return `<div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+      <span class="w-3 h-3 rounded-sm shrink-0" style="background:${kt.dot}"></span>
+      <span>${kt.label}</span>
+    </div>`;
+  }).join('');
+
+  // Hitung sel kalender
+  const firstDay = new Date(_kalTahun, _kalBulan, 1).getDay(); // 0=Min
+  const daysInMonth = new Date(_kalTahun, _kalBulan + 1, 0).getDate();
+  const daysInPrev  = new Date(_kalTahun, _kalBulan, 0).getDate();
+  const totalCells  = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  // Header hari
+  let html = `<div class="kal-header">${NAMA_HARI_KAL.map(d =>
+    `<div class="kal-dayname">${d}</div>`).join('')}</div>
+  <div class="kal-grid">`;
+
+  for (let i = 0; i < totalCells; i++) {
+    let tanggal, bulan, tahun, isOther = false;
+    if (i < firstDay) {
+      tanggal = daysInPrev - firstDay + i + 1;
+      bulan   = _kalBulan - 1; tahun = _kalTahun;
+      if (bulan < 0) { bulan = 11; tahun--; }
+      isOther = true;
+    } else if (i >= firstDay + daysInMonth) {
+      tanggal = i - firstDay - daysInMonth + 1;
+      bulan   = _kalBulan + 1; tahun = _kalTahun;
+      if (bulan > 11) { bulan = 0; tahun++; }
+      isOther = true;
+    } else {
+      tanggal = i - firstDay + 1;
+      bulan   = _kalBulan; tahun = _kalTahun;
+    }
+    const mm  = String(bulan + 1).padStart(2,'0');
+    const dd  = String(tanggal).padStart(2,'0');
+    const key = `${tahun}-${mm}-${dd}`;
+    const events = eventMap[key] || [];
+    const isToday    = key === todayStr;
+    const isSelected = key === _kalSelect;
+
+    const dots = events.slice(0,3).map(e => {
+      const kt = KAT_PUB[e.kategori] || KAT_PUB.lainnya;
+      return `<div class="kal-event">
+        <div class="kal-dot shrink-0" style="width:8px;background:${kt.dot}"></div>
+        <span class="kal-label">${e.judul}</span>
+      </div>`;
+    }).join('');
+    const more = events.length > 3
+      ? `<div class="kal-more">+${events.length-3} lainnya</div>` : '';
+
+    html += `<div class="kal-cell ${isOther?'other-month':''} ${isToday?'today':''} ${isSelected?'selected':''}"
+      onclick="kalSelectDate('${key}')">
+      <div class="kal-date">${tanggal}</div>
+      ${dots}${more}
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('kalGrid').innerHTML = html;
+
+  // Render daftar event bulan ini
+  renderKalDaftar(eventMap);
+}
+
+function kalSelectDate(key) {
+  _kalSelect = _kalSelect === key ? null : key;
+  renderKalender();
+}
+
+function renderKalDaftar(eventMap) {
+  const kalList = D.kalender || [];
+
+  // Kalau ada tanggal terpilih, tampilkan event di tanggal itu
+  if (_kalSelect) {
+    const events = eventMap[_kalSelect] || [];
+    if (!events.length) {
+      document.getElementById('kalDaftar').innerHTML =
+        `<div class="text-center py-6 text-slate-400 dark:text-slate-500 text-sm">Tidak ada event pada ${formatTglPub(_kalSelect)}</div>`;
+      return;
+    }
+    document.getElementById('kalDaftar').innerHTML =
+      `<div class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1">Event — ${formatTglPub(_kalSelect)}</div>` +
+      events.map(e => buildKalCard(e)).join('');
+    return;
+  }
+
+  // Default: tampilkan semua event bulan ini, diurutkan tanggal
+  const bulanStr = `${_kalTahun}-${String(_kalBulan+1).padStart(2,'0')}`;
+  const evBulan  = kalList
+    .filter(e => (e.tglMulai||'').startsWith(bulanStr) ||
+                 (e.tglSelesai||'').startsWith(bulanStr) ||
+                 (e.tglMulai <= bulanStr+'-31' && e.tglSelesai >= bulanStr+'-01'))
+    .sort((a,b) => (a.tglMulai||'').localeCompare(b.tglMulai||''));
+
+  if (!evBulan.length) {
+    document.getElementById('kalDaftar').innerHTML =
+      `<div class="text-center py-8 text-slate-400 dark:text-slate-500"><div class="text-3xl mb-2">📭</div><div class="text-sm">Tidak ada event di bulan ini</div></div>`;
+    return;
+  }
+
+  document.getElementById('kalDaftar').innerHTML =
+    `<div class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1">Event Bulan Ini (${evBulan.length})</div>` +
+    evBulan.map(e => buildKalCard(e)).join('');
+}
+
+function buildKalCard(e) {
+  const kt  = KAT_PUB[e.kategori] || KAT_PUB.lainnya;
+  const tgl = e.tglMulai === e.tglSelesai
+    ? formatTglPub(e.tglMulai)
+    : formatTglPub(e.tglMulai) + ' – ' + formatTglPub(e.tglSelesai);
+  return `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-3 shadow-sm flex gap-3 items-start">
+    <div class="w-1 self-stretch rounded-full shrink-0" style="background:${kt.dot}"></div>
+    <div class="flex-1 min-w-0">
+      <div class="font-semibold text-slate-800 dark:text-slate-100 text-sm">${e.judul}</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">${tgl}</div>
+      ${e.keterangan ? `<div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${e.keterangan}</div>` : ''}
+    </div>
+    <span class="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full" style="background:${kt.bg};color:${kt.color}">${kt.label}</span>
+  </div>`;
+}
+
+function formatTglPub(str) {
+  if (!str) return '—';
+  const d = parseLocalDate(str);
+  if (!d) return str;
+  return d.toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'long' });
+}
+
+async function fetchData() {
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'getPublicData' })
+    });
+    D = await res.json();
+    if (!D.ok) throw new Error(D.msg || 'Server mengembalikan error');
+    // Pastikan karyawan selalu array
+    if (!Array.isArray(D.karyawan)) D.karyawan = Object.values(D.karyawan || {});
+  } catch(err) {
+    const isOffline = !navigator.onLine;
+    document.getElementById('loading').innerHTML = `
+      <div class="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center max-w-md mx-auto" id="errorScreen">
+        <div class="mb-6">
+          ${isOffline ? `
+          <svg width="160" height="120" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="80" cy="55" r="38" fill="#e8f0fb" stroke="#2b63b3" stroke-width="2"/>
+            <path d="M58 55 Q80 35 102 55" stroke="#2b63b3" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <path d="M64 62 Q80 48 96 62" stroke="#2b63b3" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="80" cy="69" r="4" fill="#2b63b3"/>
+            <line x1="50" y1="25" x2="110" y2="95" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+            <line x1="110" y1="25" x2="50" y2="95" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="128" cy="90" r="18" fill="#fdecea" stroke="#e74c3c" stroke-width="1.5"/>
+            <text x="128" y="96" text-anchor="middle" font-size="18" fill="#e74c3c">!</text>
+          </svg>` : `
+          <svg width="160" height="120" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="25" y="30" width="110" height="75" rx="10" fill="#e8f0fb" stroke="#2b63b3" stroke-width="2"/>
+            <rect x="25" y="30" width="110" height="28" rx="10" fill="#2b63b3"/>
+            <rect x="25" y="48" width="110" height="10" fill="#2b63b3"/>
+            <circle cx="40" cy="44" r="5" fill="white" fill-opacity="0.5"/>
+            <circle cx="56" cy="44" r="5" fill="white" fill-opacity="0.5"/>
+            <path d="M70 65 L90 65 M70 75 L100 75 M70 85 L85 85" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="125" cy="88" r="18" fill="#fdecea" stroke="#e74c3c" stroke-width="1.5"/>
+            <text x="125" y="94" text-anchor="middle" font-size="18" fill="#e74c3c">!</text>
+          </svg>`}
+        </div>
+        <h2 class="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">
+          ${isOffline ? 'Tidak Ada Koneksi' : 'Gagal Memuat Data'}
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
+          ${isOffline
+            ? 'Koneksi internet terputus. Periksa jaringan Wi-Fi atau data seluler Anda, lalu coba lagi.'
+            : 'Server tidak dapat dihubungi saat ini. Mungkin sedang dalam pemeliharaan atau URL belum dikonfigurasi.'}
+        </p>
+        <p class="text-xs text-slate-300 dark:text-slate-600 font-mono mb-6">${err.message}</p>
+        <button onclick="location.reload()"
+          class="w-full max-w-xs px-6 py-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-sm font-semibold rounded-xl transition-all shadow-sm mb-3">
+          🔄 Coba Lagi
+        </button>
+        ${isOffline ? `
+        <p class="text-xs text-slate-400 dark:text-slate-500" id="offlineHint">
+          Mendeteksi koneksi... halaman akan dimuat otomatis saat online kembali.
+        </p>` : ''}
+      </div>`;
+
+    // Auto-reload saat koneksi kembali online
+    window.addEventListener('online', () => {
+      document.getElementById('offlineHint') &&
+        (document.getElementById('offlineHint').textContent = '✅ Koneksi pulih! Memuat ulang...');
+      setTimeout(() => location.reload(), 800);
+    }, { once: true });
+
+    // Pantau status offline secara berkala juga
+    window.addEventListener('offline', () => {
+      const h = document.querySelector('#errorScreen h2');
+      if (h) h.textContent = 'Tidak Ada Koneksi';
+    });
+    return;
+  }
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('headerSub').textContent = 'Demo Sekolah — Tahun Ajaran Sekarang';
+  initSelects();
+  initKelasSaya();
+  renderHariIni();
+  renderPengumumanBanner();
+  renderJadwalKelas();
+  renderJadwalGuru();
+  // Tick jam setiap detik
+  tickJam();
+  setInterval(tickJam, 1000);
+}
+
+function initSelects() {
+  const groups={};
+  D.kelas.forEach(k=>{ const t=k.split(' - ')[0]; if(!groups[t])groups[t]=[]; groups[t].push(k); });
+  document.getElementById('filterKelas').innerHTML = Object.entries(groups)
+    .map(([t,ks])=>`<optgroup label="${t}">${ks.map(k=>`<option value="${k}">${k}</option>`).join('')}</optgroup>`).join('');
+  document.getElementById('filterGuru').innerHTML = Object.entries(D.guru)
+    .sort((a,b)=>parseInt(a[0])-parseInt(b[0]))
+    .map(([k,g])=>`<option value="${k}">[${k}] ${g.nama} — ${g.mapel}</option>`).join('');
+  const mapelList = [...new Set(Object.values(D.guru).map(g=>g.mapel))].sort((a,b)=>a.localeCompare(b));
+  document.getElementById('filterMapel').innerHTML = mapelList
+    .map(m=>`<option value="${m}">${m}</option>`).join('');
+}
+
+// Sort kelas secara numerik: "KELAS X - 2" < "KELAS X - 10"
+function kelasSort(a, b) {
+  // Pisahkan tingkat (X/XI/XII) dan nomor
+  const parse = k => {
+    const m = k.match(/KELAS\s+(X{1,3}I{0,3}|XI{0,2})\s*-\s*(\d+)/i);
+    if (!m) return { tingkat: k, nomor: 0 };
+    const tingkatRank = { 'X':0, 'XI':1, 'XII':2 };
+    return { tingkat: tingkatRank[m[1].toUpperCase()] ?? 99, nomor: parseInt(m[2]) || 0 };
+  };
+  const pa = parse(a), pb = parse(b);
+  return pa.tingkat !== pb.tingkat ? pa.tingkat - pb.tingkat : pa.nomor - pb.nomor;
+}
+
+function getMapelIdx(nama) {
+  const list = [...new Set(Object.values(D.guru).map(g=>g.mapel))];
+  const i = list.indexOf(nama); return i>=0?i:0;
+}
+
+function renderJadwalKelas() {
+  const kelasId    = document.getElementById('filterKelas').value;
+  const hariFilter = document.getElementById('filterHari').value;
+  const hariList   = hariFilter ? [hariFilter] : HARI;
+  const isSemuaHari = !hariFilter;
+
+  // Deteksi hari & JP yang sedang berlangsung sekarang
+  const hariAktif = getHariIni();
+  const jpAktif   = HARI.includes(hariAktif) ? getJPSekarang(hariAktif) : null;
+
+  const usedMapel = new Set();
+  hariList.forEach(h=>jamUntukHari(h).forEach(j=>{const kode=(D.jadwal[h]||{})[j]||{}; const k=kode[kelasId]; if(k){const g=D.guru[String(k)]; if(g)usedMapel.add(g.mapel);}}));
+  const mapelArr = [...usedMapel];
+
+  document.getElementById('legendKelas').innerHTML = mapelArr.map(m=>{
+    const i=getMapelIdx(m);
+    return `<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400"><span class="w-3.5 h-3.5 rounded-sm shrink-0" style="background:${COLORS[i%15]};border:1.5px solid ${BORDERS[i%15]}"></span><span>${m}</span></div>`;
+  }).join('');
+
+  let html = `<table class="jadwal-tbl w-full text-sm min-w-[620px]">
+    <thead><tr>
+      <th class="px-3 py-3 text-center font-semibold w-24 bg-brand-700 text-white">Hari</th>
+      <th class="px-2 py-3 text-center font-semibold w-10 bg-brand-700 text-white">JP</th>
+      <th class="px-2 py-3 text-center font-semibold w-28 bg-brand-700 text-white">Waktu</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Mata Pelajaran</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Guru</th>
+    </tr></thead><tbody>`;
+
+  let activeRowId = null;
+
+  hariList.forEach((hari, hIdx)=>{
+    const jamList = jamUntukHari(hari);
+    jamList.forEach((jam,ji)=>{
+      const kd    = (D.jadwal[hari]||{})[jam]||{};
+      const kode  = kd[kelasId];
+      const g     = kode ? D.guru[String(kode)] : null;
+      const isConf = D.conflicts.some(c=>c.hari===hari&&c.jam===jam&&c.kode===parseInt(kode));
+      const i     = g ? getMapelIdx(g.mapel) : 0;
+      const isDividerRow = isSemuaHari && ji===0 && hIdx>0;
+
+      // Cek apakah baris ini sedang berlangsung
+      const isBerlangsung = hari === hariAktif && jam === jpAktif;
+      const rowId = isBerlangsung ? 'jp-aktif-row' : '';
+      if (isBerlangsung) activeRowId = rowId;
+
+      const rowBg = isBerlangsung
+        ? 'bg-brand-50 dark:bg-brand-900/20'
+        : 'hover:bg-slate-50/70 dark:hover:bg-slate-700/40';
+
+      html += `<tr id="${rowId}" class="border-t border-slate-100 dark:border-slate-700 ${rowBg} ${isDividerRow?'hari-divider':''}">
+        <td class="px-3 py-2 text-center font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 ${ji===0?'border-t-2 border-t-brand-500':''}">${ji===0?HARI_LENGKAP[hari]:''}</td>
+        <td class="px-2 py-2 text-center font-bold ${isBerlangsung?'text-brand-700 dark:text-brand-300':'text-slate-600 dark:text-slate-300'} bg-slate-100 dark:bg-slate-700/50">
+          ${jam}${isBerlangsung?'<div class="text-[9px] font-bold text-brand-600 dark:text-brand-400 leading-none mt-0.5">▶ Kini</div>':''}
+        </td>
+        <td class="px-2 py-2 text-center whitespace-nowrap text-xs ${isBerlangsung?'text-brand-600 dark:text-brand-400 font-semibold':'text-slate-400 dark:text-slate-500'}">${(labelUntukHari(hari)[jam]||'')}</td>`;
+
+      if (g) {
+        html += `<td class="px-2 py-2">
+          <div class="slot rounded-md px-3 py-2 cursor-pointer ${isConf?'ring-2 ring-red-500':''} ${isBerlangsung?'ring-2 ring-brand-400 dark:ring-brand-500':''}"
+               style="background:${COLORS[i%15]};border-left:3px solid ${BORDERS[i%15]}"
+               onclick="showDetail('${hari}',${jam},'${kelasId}',${kode})">
+            <div class="font-bold text-sm leading-tight truncate" style="color:${BORDERS[i%15]}cc">${g.mapel}</div>
+          </div></td>
+          <td class="px-3 py-2 text-sm ${isBerlangsung?'font-semibold text-slate-700 dark:text-slate-200':'text-slate-600 dark:text-slate-300'}">
+            ${g.nama}
+            ${isBerlangsung?'<span class="inline-block ml-1.5 px-2 py-0.5 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 text-[10px] font-bold align-middle">▶ Berlangsung</span>':''}
+            ${isConf?'<span class="inline-block ml-1 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold">⚠ Bentrok</span>':''}
+          </td>`;
+      } else {
+        html += `<td class="px-2 py-2"><div class="h-[42px] rounded-md border border-dashed border-slate-200 dark:border-slate-600 bg-slate-50/60 dark:bg-slate-700/30"></div></td>
+                 <td class="px-3 py-2 text-slate-300 dark:text-slate-600 text-sm">—</td>`;
+      }
+      html += '</tr>';
+      if(jam===4||jam===6) html+=`<tr><td colspan="5" class="text-center text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 py-2">— ISTIRAHAT —</td></tr>`;
+    });
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('jadwalKelasWrap').innerHTML = html;
+
+  // Auto-scroll ke baris yang sedang berlangsung
+  if (activeRowId) {
+    setTimeout(() => {
+      const el = document.getElementById(activeRowId);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }, 150);
+  }
+}
+
+function renderJadwalGuru() {
+  const kode = document.getElementById('filterGuru').value;
+  const g = D.guru[kode];
+  if (!g) return;
+  const beban = computeBebanMap()[kode]||0;
+  const kelasSet = new Set();
+  HARI.forEach(h=>jamUntukHari(h).forEach(j=>{const kd=(D.jadwal[h]||{})[j]||{}; Object.entries(kd).forEach(([kls,k])=>{if(String(k)===kode)kelasSet.add(kls);});}));
+  const i = getMapelIdx(g.mapel);
+  document.getElementById('guruInfoBar').innerHTML = `
+    <div class="bg-white border border-slate-200 rounded-xl p-4 flex gap-4 items-center flex-wrap shadow-sm">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl font-extrabold shrink-0" style="background:${COLORS[i%15]};color:${BORDERS[i%15]}">${kode}</div>
+      <div class="flex-1 min-w-[160px]">
+        <div class="font-bold text-base text-slate-800">${g.nama}</div>
+        <div class="text-sm text-slate-500 mt-0.5">${g.mapel}</div>
+      </div>
+      <div class="text-center px-4">
+        <div class="text-2xl font-bold text-brand-600">${beban}</div>
+        <div class="text-xs text-slate-400 font-medium">JP/Minggu</div>
+      </div>
+      <div class="text-center px-4">
+        <div class="text-2xl font-bold text-brand-600">${kelasSet.size}</div>
+        <div class="text-xs text-slate-400 font-medium">Kelas</div>
+      </div>
+    </div>`;
+
+  let html = `<table class="jadwal-tbl w-full text-sm min-w-[620px]">
+    <thead><tr>
+      <th class="px-2 py-3 text-center font-semibold w-12 bg-brand-700 text-white">Jam</th>
+      ${HARI.map(h=>`<th class="px-2 py-3 text-center font-semibold bg-brand-700 text-white">${HARI_LENGKAP[h]}</th>`).join('')}
+    </tr></thead><tbody>`;
+  JAM.forEach(jam=>{
+    html += `<tr class="border-t border-slate-100">
+      <td class="px-2 py-2 text-center font-bold text-slate-600 bg-slate-100">${jam}</td>`;
+    HARI.forEach(hari=>{
+      const jamTersedia = jamUntukHari(hari).includes(jam);
+      if (!jamTersedia) {
+        html += `<td class="px-2 py-2"><div class="h-[40px] rounded-md bg-slate-100/70"></div></td>`;
+        return;
+      }
+      let foundKelas=null;
+      const kd=(D.jadwal[hari]||{})[jam]||{};
+      Object.entries(kd).forEach(([kls,k])=>{if(String(k)===kode)foundKelas=kls;});
+      const isConf=D.conflicts.some(c=>c.hari===hari&&c.jam===jam&&c.kode===parseInt(kode));
+      if(foundKelas){
+        html+=`<td class="px-2 py-2">
+          <div class="slot rounded-md px-2 py-2 cursor-pointer ${isConf?'ring-2 ring-red-500':''}" style="background:${COLORS[i%15]};border-left:3px solid ${BORDERS[i%15]}" onclick="showDetail('${hari}',${jam},'${foundKelas}',${kode})">
+            <div class="font-bold text-xs leading-tight truncate" style="color:${BORDERS[i%15]}cc">${g.mapel}</div>
+            <div class="text-[11px] text-slate-600 truncate">${foundKelas.replace('KELAS ','')}</div>
+          </div></td>`;
+      } else {html+=`<td class="px-2 py-2"><div class="h-[40px] rounded-md bg-slate-50"></div></td>`;}
+    });
+    html+='</tr>';
+    if(jam===4||jam===6)html+=`<tr><td colspan="6" class="text-center text-xs font-bold text-amber-700 bg-amber-50 py-2">— ISTIRAHAT —</td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('jadwalGuruWrap').innerHTML=html;
+}
+
+// ── HARI INI ──────────────────────────────────────────────────
+
+const NAMA_HARI_JS  = ['MINGGU','SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU'];
+const NAMA_BULAN    = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function getHariIni() {
+  const now = new Date();
+  return NAMA_HARI_JS[now.getDay()]; // 'SENIN' dst.
+}
+
+function getJamSekarang() {
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes(); // total menit sejak tengah malam
+}
+
+function parseJam(str) {
+  // "07:15" → 435 menit
+  if (!str) return 0;
+  const part = str.split('–')[0].trim();
+  const [h, m] = part.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function parseJamAkhir(str) {
+  if (!str) return 0;
+  const part = str.split('–')[1]?.trim() || str.split('-')[1]?.trim() || '';
+  const [h, m] = part.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function getJPSekarang(hari) {
+  const sekarang = getJamSekarang();
+  const labels   = labelUntukHari(hari);
+  for (const jam of jamUntukHari(hari)) {
+    const mulai  = parseJam(labels[jam]);
+    const selesai = parseJamAkhir(labels[jam]);
+    if (sekarang >= mulai && sekarang < selesai) return jam;
+  }
+  return null; // di luar jam pelajaran
+}
+
+function tickJam() {
+  const now    = new Date();
+  const h      = String(now.getHours()).padStart(2,'0');
+  const m      = String(now.getMinutes()).padStart(2,'0');
+  const s      = String(now.getSeconds()).padStart(2,'0');
+  const elJam  = document.getElementById('jamSekarang');
+  if (elJam) elJam.textContent = `${h}:${m}:${s}`;
+
+  const hari    = getHariIni();
+  const jpNow   = getJPSekarang(hari);
+  const elStatus = document.getElementById('statusJP');
+  if (elStatus) {
+    if (!HARI.includes(hari)) {
+      elStatus.textContent = 'Bukan hari sekolah';
+    } else if (jpNow) {
+      const label = labelUntukHari(hari)[jpNow] || '';
+      elStatus.textContent = `Sedang berlangsung: JP ${jpNow} (${label})`;
+    } else {
+      const sekarang = getJamSekarang();
+      const labels   = labelUntukHari(hari);
+      const jamList  = jamUntukHari(hari);
+      const jamMulai = parseJam(labels[jamList[0]]);
+      const jamAkhir = parseJamAkhir(labels[jamList[jamList.length-1]]);
+      if (sekarang < jamMulai)      elStatus.textContent = 'Belum mulai — KBM belum dimulai';
+      else if (sekarang >= jamAkhir) elStatus.textContent = 'KBM telah selesai hari ini';
+      else                           elStatus.textContent = 'Sedang istirahat';
+    }
+  }
+}
+
+// ── KELAS SAYA ────────────────────────────────────────────────
+
+function initKelasSaya() {
+  const sel = document.getElementById('filterKelasSaya');
+  if (!sel) return;
+
+  // Isi dropdown dengan semua kelas (urutan numerik)
+  const sorted = [...(D.kelas || [])].sort(kelasSort);
+  sel.innerHTML = '<option value="">— Pilih kelas saya —</option>' +
+    sorted.map(k => `<option value="${k}">${k}</option>`).join('');
+
+  // Restore pilihan dari localStorage
+  const saved = localStorage.getItem('kelasSaya');
+  if (saved && D.kelas && D.kelas.includes(saved)) {
+    sel.value = saved;
+    updateKelasSayaBadge(saved);
+  } else {
+    updateKelasSayaBadge('');
+  }
+}
+
+function simpanKelasSaya() {
+  const sel   = document.getElementById('filterKelasSaya');
+  const kelas = sel.value;
+  if (kelas) {
+    localStorage.setItem('kelasSaya', kelas);
+    updateKelasSayaBadge(kelas);
+  } else {
+    hapusKelasSaya();
+    return;
+  }
+  // Reset filter tingkat agar tidak konflik
+  const ft = document.getElementById('filterTingkatHariIni');
+  if (ft) ft.value = '';
+  renderHariIni();
+}
+
+function hapusKelasSaya() {
+  localStorage.removeItem('kelasSaya');
+  const sel = document.getElementById('filterKelasSaya');
+  if (sel) sel.value = '';
+  updateKelasSayaBadge('');
+  renderHariIni();
+}
+
+function updateKelasSayaBadge(kelas) {
+  const badge = document.getElementById('kelasSayaBadge');
+  const nama  = document.getElementById('kelasSayaNama');
+  if (!badge || !nama) return;
+  if (kelas) {
+    nama.textContent = kelas;
+    badge.classList.remove('hidden');
+    badge.classList.add('flex');
+  } else {
+    badge.classList.add('hidden');
+    badge.classList.remove('flex');
+  }
+}
+
+function getKelasSaya() {
+  // Kembalikan kelas yang tersimpan, kalau ada dan masih valid
+  const saved = localStorage.getItem('kelasSaya');
+  if (saved && D.kelas && D.kelas.includes(saved)) return saved;
+  return null;
+}
+
+function renderHariIni() {
+  const hari = getHariIni();
+  const now  = new Date();
+  const tgl  = `${now.getDate()} ${NAMA_BULAN[now.getMonth()]} ${now.getFullYear()}`;
+
+  // Update header banner
+  const elHari = document.getElementById('hariIniLabel');
+  if (elHari) elHari.textContent = HARI.includes(hari)
+    ? `Hari ${HARI_LENGKAP[hari]}`
+    : `${hari.charAt(0)+hari.slice(1).toLowerCase()} — Bukan Hari Sekolah`;
+  const elTgl = document.getElementById('hariIniTanggal');
+  if (elTgl) elTgl.textContent = tgl;
+
+  // Piket hari ini
+  const piketList = (D.piket || {})[hari] || [];
+  const piketEl   = document.getElementById('piketHariIni');
+  if (piketEl) {
+    const filled = piketList.filter(s => s && (s.kode || (typeof s === 'string' && s)));
+    if (HARI.includes(hari) && filled.length) {
+      const chips = filled.map(s => {
+        const kode     = typeof s === 'object' ? s.kode : s;
+        const isPinned = typeof s === 'object' ? s.pin  : false;
+        const ket      = typeof s === 'object' ? (s.ket || '') : '';
+        if (!kode) return '';
+        // Cek guru atau karyawan
+        const isKaryawan = String(kode).startsWith('k_');
+        let g, nama;
+        if (isKaryawan) {
+          const karyawanList = Array.isArray(D.karyawan) ? D.karyawan : Object.values(D.karyawan || {});
+          g    = karyawanList.find(k => String(k.id).trim() === String(kode).trim());
+          nama = g ? g.nama : '(Karyawan)';
+        } else {
+          g = D.guru[String(kode)];
+          if (!g) return '';
+          nama = g.nama.split(',')[0];
+        }
+        const kodeTag = isKaryawan
+          ? ''
+          : `<span class="font-extrabold text-brand-700 dark:text-brand-400 text-xs">${kode}</span>`;
+        return `<div class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${isPinned
+          ? 'bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700'
+          : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600'}">
+          ${isPinned ? '<span class="text-sm">📌</span>' : ''}
+          ${kodeTag}
+          <span class="text-slate-700 dark:text-slate-200">${nama}</span>
+          ${isKaryawan ? '<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300">Karyawan</span>' : ''}
+          ${ket ? `<span class="text-[11px] text-slate-400 dark:text-slate-500">· ${ket}</span>` : ''}
+        </div>`;
+      }).filter(Boolean).join('');
+      piketEl.innerHTML = `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
+        <div class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">📋 Guru Piket Hari Ini <span class="font-normal text-slate-400">(${filled.length} guru)</span></div>
+        <div class="flex flex-wrap gap-2">${chips || '<span class="text-slate-400 text-sm">Belum ada data piket</span>'}</div>
+      </div>`;
+    } else {
+      piketEl.innerHTML = '';
+    }
+  }
+
+  if (!HARI.includes(hari)) {
+    document.getElementById('jadwalHariIniWrap').innerHTML =
+      `<div class="text-center py-16 text-slate-400"><div class="text-5xl mb-3">🏖️</div><div class="font-semibold text-base">Hari ini adalah hari libur</div><div class="text-sm mt-1">Tidak ada jadwal KBM</div></div>`;
+    document.getElementById('hariIniStats').innerHTML = '';
+    return;
+  }
+
+  const kelasSaya     = getKelasSaya(); // null jika belum dipilih
+  const filterTingkat = document.getElementById('filterTingkatHariIni')?.value || '';
+  const filterJP      = document.getElementById('filterJPHariIni')?.value || 'semua';
+  const sekarang      = getJamSekarang();
+  const jpNow         = getJPSekarang(hari);
+  const labels        = labelUntukHari(hari);
+
+  // Tentukan jam yang ditampilkan
+  let jamTampil = jamUntukHari(hari);
+  if (filterJP === 'sekarang') {
+    jamTampil = jpNow ? [jpNow] : [];
+  } else if (filterJP === 'sisa') {
+    jamTampil = jamTampil.filter(j => parseJamAkhir(labels[j]) > sekarang);
+  }
+
+  // Kumpulkan entri jadwal hari ini
+  let entries = [];
+  jamTampil.forEach(jam => {
+    const kd = (D.jadwal[hari] || {})[jam] || {};
+    Object.entries(kd).forEach(([kelas, kode]) => {
+      if (!kode) return;
+      // Prioritas filter: Kelas Saya > Tingkat > Semua
+      if (kelasSaya) {
+        if (kelas !== kelasSaya) return;
+      } else if (filterTingkat) {
+        if (!kelas.startsWith(filterTingkat)) return;
+      }
+      const g = D.guru[String(kode)];
+      entries.push({ jam, kelas, kode: String(kode), guru: g ? g.nama : `Kode ${kode}`, mapel: g ? g.mapel : '—' });
+    });
+  });
+
+  // Stats
+  const totalKelas = new Set(entries.map(e=>e.kelas)).size;
+  const totalGuru  = new Set(entries.map(e=>e.kode)).size;
+  document.getElementById('hariIniStats').innerHTML = `
+    <div class="text-center"><div class="font-bold text-brand-700 text-lg">${entries.length}</div><div class="text-xs text-slate-400">JP berjalan</div></div>
+    <div class="text-center"><div class="font-bold text-brand-700 text-lg">${totalKelas}</div><div class="text-xs text-slate-400">Kelas aktif</div></div>
+    <div class="text-center"><div class="font-bold text-brand-700 text-lg">${totalGuru}</div><div class="text-xs text-slate-400">Guru mengajar</div></div>`;
+
+  if (!entries.length) {
+    document.getElementById('jadwalHariIniWrap').innerHTML =
+      `<div class="text-center py-12 text-slate-400"><div class="text-4xl mb-3">📭</div><div class="font-semibold">Tidak ada jadwal yang sesuai filter</div></div>`;
+    return;
+  }
+
+  // Urutkan: jam → kelas
+  entries.sort((a,b) => a.jam-b.jam || kelasSort(a.kelas, b.kelas));
+
+  // Render tabel
+  let lastJam = null;
+  let html = `<table class="jadwal-tbl w-full text-sm min-w-[520px]">
+    <thead><tr>
+      <th class="px-2 py-3 text-center font-semibold w-10 bg-brand-700 text-white">JP</th>
+      <th class="px-3 py-3 text-center font-semibold w-28 bg-brand-700 text-white">Waktu</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Kelas</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Mata Pelajaran</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Guru</th>
+    </tr></thead><tbody>`;
+
+  entries.forEach(e => {
+    const isNewJam   = e.jam !== lastJam;
+    const isJPNow    = e.jam === jpNow;
+    const i          = getMapelIdx(e.mapel);
+    const isConf     = D.conflicts.some(c=>c.hari===hari&&c.jam===e.jam&&c.kode===parseInt(e.kode));
+    const rowBg      = isJPNow ? 'bg-brand-50/60' : '';
+    const jpNowBadge = isJPNow && isNewJam
+      ? ` <span class="ml-1 inline-block px-2 py-0.5 rounded-full bg-brand-600 text-white text-[10px] font-bold align-middle">▶ Sekarang</span>`
+      : '';
+
+    html += `<tr class="border-t ${isNewJam ? 'border-t-2 border-t-brand-400' : 'border-slate-100'} hover:bg-slate-50/70 ${rowBg}">
+      <td class="px-2 py-2.5 text-center font-bold text-slate-600 bg-slate-100">${isNewJam ? e.jam+jpNowBadge : ''}</td>
+      <td class="px-3 py-2.5 text-center text-slate-400 whitespace-nowrap text-xs">${isNewJam ? labels[e.jam]||'' : ''}</td>
+      <td class="px-3 py-2.5">
+        <div class="slot rounded-md px-2.5 py-1.5 cursor-pointer inline-block ${isConf?'ring-2 ring-red-500':''}" style="background:${COLORS[i%15]};border-left:3px solid ${BORDERS[i%15]}" onclick="showDetail('${hari}',${e.jam},'${e.kelas}',${e.kode})">
+          <div class="font-bold text-xs" style="color:${BORDERS[i%15]}cc">${e.kelas.replace('KELAS ','')}</div>
+        </div>
+      </td>
+      <td class="px-3 py-2.5 font-semibold text-slate-700">${e.mapel}${isConf?' <span class="ml-1 px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold">⚠</span>':''}</td>
+      <td class="px-3 py-2.5 text-slate-600">${e.guru}</td>
+    </tr>`;
+    lastJam = e.jam;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('jadwalHariIniWrap').innerHTML = html;
+}
+
+function renderJadwalMapel() {
+  const sel = document.getElementById('filterMapel');
+  if (!sel.value && sel.options.length) sel.value = sel.options[0].value;
+  const mapel = sel.value;
+  const hariFilter = document.getElementById('filterHariMapel').value;
+  if (!mapel) return;
+  const hariList = hariFilter ? [hariFilter] : HARI;
+  const i = getMapelIdx(mapel);
+
+  // Kumpulkan semua slot untuk mapel ini, lintas kelas & hari
+  let entries = [];
+  hariList.forEach(hari => {
+    jamUntukHari(hari).forEach(jam => {
+      const kd = (D.jadwal[hari]||{})[jam] || {};
+      Object.entries(kd).forEach(([kelas, kode]) => {
+        if (!kode) return;
+        const g = D.guru[String(kode)];
+        if (g && g.mapel === mapel) {
+          entries.push({ hari, jam, kelas, kode: String(kode), guru: g.nama });
+        }
+      });
+    });
+  });
+
+  // Info ringkas
+  const kelasSet = new Set(entries.map(e=>e.kelas));
+  const guruSet  = new Set(entries.map(e=>e.kode));
+  document.getElementById('mapelInfoBar').innerHTML = `
+    <div class="bg-white border border-slate-200 rounded-xl p-4 flex gap-4 items-center flex-wrap shadow-sm">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl shrink-0" style="background:${COLORS[i%15]};color:${BORDERS[i%15]}">📖</div>
+      <div class="flex-1 min-w-[160px]">
+        <div class="font-bold text-base text-slate-800">${mapel}</div>
+        <div class="text-sm text-slate-500 mt-0.5">${hariFilter ? HARI_LENGKAP[hariFilter] : 'Semua Hari'}</div>
+      </div>
+      <div class="text-center px-4">
+        <div class="text-2xl font-bold text-brand-600">${entries.length}</div>
+        <div class="text-xs text-slate-400 font-medium">Total JP</div>
+      </div>
+      <div class="text-center px-4">
+        <div class="text-2xl font-bold text-brand-600">${kelasSet.size}</div>
+        <div class="text-xs text-slate-400 font-medium">Kelas</div>
+      </div>
+      <div class="text-center px-4">
+        <div class="text-2xl font-bold text-brand-600">${guruSet.size}</div>
+        <div class="text-xs text-slate-400 font-medium">Guru Pengampu</div>
+      </div>
+    </div>`;
+
+  if (!entries.length) {
+    document.getElementById('jadwalMapelGrid').innerHTML = '';
+    document.getElementById('jadwalMapelWrap').innerHTML =
+      `<div class="text-center text-slate-400 py-10 text-sm">Tidak ada jadwal untuk mata pelajaran ini${hariFilter ? ' pada hari ' + HARI_LENGKAP[hariFilter] : ''}.</div>`;
+    return;
+  }
+
+  // ── GRID RINGKAS (Hari × Jam, multi-kelas per slot) ──────────
+  let gridHtml = `<table class="jadwal-tbl w-full text-sm min-w-[620px]">
+    <thead><tr>
+      <th class="px-2 py-3 text-center font-semibold w-12 bg-brand-700 text-white">Jam</th>
+      ${hariList.map(h=>`<th class="px-2 py-3 text-center font-semibold bg-brand-700 text-white">${HARI_LENGKAP[h]}</th>`).join('')}
+    </tr></thead><tbody>`;
+  const semuaJam = [...new Set(hariList.flatMap(h=>jamUntukHari(h)))].sort((a,b)=>a-b);
+  semuaJam.forEach(jam => {
+    gridHtml += `<tr class="border-t border-slate-100">
+      <td class="px-2 py-2 text-center font-bold text-slate-600 bg-slate-100">${jam}</td>`;
+    hariList.forEach(hari => {
+      if (!jamUntukHari(hari).includes(jam)) { gridHtml += `<td class="px-2 py-2"><div class="h-[40px] rounded-md bg-slate-100/70"></div></td>`; return; }
+      const slotEntries = entries.filter(e=>e.hari===hari&&e.jam===jam);
+      if (!slotEntries.length) { gridHtml += `<td class="px-2 py-2"><div class="h-[40px] rounded-md bg-slate-50"></div></td>`; return; }
+      const chips = slotEntries.map(e=>{
+        const isConf = D.conflicts.some(c=>c.hari===e.hari&&c.jam===e.jam&&c.kode===parseInt(e.kode));
+        return `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer ${isConf?'ring-2 ring-red-500':''}" style="background:${COLORS[i%15]};color:${BORDERS[i%15]}" onclick="showDetail('${e.hari}',${e.jam},'${e.kelas}',${e.kode})">${e.kelas.replace('KELAS ','')}</span>`;
+      }).join(' ');
+      gridHtml += `<td class="px-2 py-2"><div class="flex flex-wrap gap-1 items-center min-h-[40px] py-1">${chips}</div></td>`;
+    });
+    gridHtml += '</tr>';
+  });
+  gridHtml += '</tbody></table>';
+  document.getElementById('jadwalMapelGrid').innerHTML = gridHtml;
+
+  // ── TABEL DETAIL ──────────────────────────────────────────────
+  // Urutkan: hari → jam
+  const hariIdx = h => HARI.indexOf(h);
+  entries.sort((a,b) => hariIdx(a.hari)-hariIdx(b.hari) || a.jam-b.jam || kelasSort(a.kelas, b.kelas));
+
+  let html = `<table class="jadwal-tbl w-full text-sm min-w-[620px]">
+    <thead><tr>
+      <th class="px-3 py-3 text-center font-semibold w-24 bg-brand-700 text-white">Hari</th>
+      <th class="px-2 py-3 text-center font-semibold w-10 bg-brand-700 text-white">JP</th>
+      <th class="px-2 py-3 text-center font-semibold w-24 bg-brand-700 text-white">Waktu</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Kelas</th>
+      <th class="px-3 py-3 text-left font-semibold bg-brand-700 text-white">Guru</th>
+    </tr></thead><tbody>`;
+
+  let lastHari = null;
+  entries.forEach(e => {
+    const isNewHari = e.hari !== lastHari;
+    const isConf = D.conflicts.some(c=>c.hari===e.hari&&c.jam===e.jam&&c.kode===parseInt(e.kode));
+    html += `<tr class="border-t border-slate-100 hover:bg-slate-50/70 ${isNewHari && lastHari!==null ? 'hari-divider' : ''}">
+      <td class="px-3 py-2 text-center font-bold text-slate-600 bg-slate-100">${isNewHari ? HARI_LENGKAP[e.hari] : ''}</td>
+      <td class="px-2 py-2 text-center font-bold text-slate-600 bg-slate-100">${e.jam}</td>
+      <td class="px-2 py-2 text-center text-slate-400 whitespace-nowrap text-xs">${labelUntukHari(e.hari)[e.jam]||''}</td>
+      <td class="px-3 py-2">
+        <div class="slot rounded-md px-3 py-2 cursor-pointer inline-block ${isConf?'ring-2 ring-red-500':''}" style="background:${COLORS[i%15]};border-left:3px solid ${BORDERS[i%15]}" onclick="showDetail('${e.hari}',${e.jam},'${e.kelas}',${e.kode})">
+          <div class="font-bold text-sm" style="color:${BORDERS[i%15]}cc">${e.kelas.replace('KELAS ','')}</div>
+        </div>
+      </td>
+      <td class="px-3 py-2 text-sm text-slate-600">${e.guru}${isConf?' <span class="inline-block ml-1 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold">⚠ Bentrok</span>':''}</td>
+    </tr>`;
+    lastHari = e.hari;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('jadwalMapelWrap').innerHTML = html;
+}
+
+function computeBebanMap() {
+  const b={};
+  Object.values(D.jadwal).forEach(jams=>Object.values(jams).forEach(kd=>Object.values(kd).forEach(kode=>{if(kode){const k=String(kode);b[k]=(b[k]||0)+1;}})));
+  return b;
+}
+
+function showDetail(hari,jam,kelas,kode) {
+  const g=D.guru[String(kode)];
+  const isConf=D.conflicts.some(c=>c.hari===hari&&c.jam===jam&&c.kode===parseInt(kode));
+  document.getElementById('modalTitle').textContent=`${kelas}`;
+  const row = (key,val) => `<div class="flex justify-between items-center py-2.5 text-sm"><span class="text-slate-400 font-medium text-sm">${key}</span><span class="text-slate-700">${val}</span></div>`;
+  document.getElementById('modalBody').innerHTML=
+    row('Hari / Jam', `${HARI_LENGKAP[hari]}, Jam ${jam}`) +
+    row('Waktu', labelUntukHari(hari)[jam]||'') +
+    row('Mata Pelajaran', `<strong>${g?g.mapel:'?'}</strong>`) +
+    row('Guru', g?g.nama:'Kode '+kode) +
+    row('Kode', `<span class="font-extrabold text-brand-700">${kode}</span>`) +
+    (isConf ? row('Status', `<span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold">⚠ BENTROK JADWAL</span>`) : '');
+  const modal = document.getElementById('modalBg');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+function closeModal(){
+  const modal = document.getElementById('modalBg');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function renderWaliPublik() {
+  const search = (document.getElementById('searchWaliPublik')?.value || '').toLowerCase();
+  let rows = (D.kelas||[]).map(kelas => {
+    const kode = (D.wali || {})[kelas] || '';
+    const g = kode ? D.guru[kode] : null;
+    return { kelas, kode, nama: g ? g.nama : '', mapel: g ? g.mapel : '' };
+  });
+  if (search) rows = rows.filter(r => r.kelas.toLowerCase().includes(search) || r.nama.toLowerCase().includes(search));
+  document.getElementById('waliPublikBody').innerHTML = rows.map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/70">
+    <td class="px-3 py-2.5 font-semibold text-slate-700">${r.kelas}</td>
+    <td class="px-3 py-2.5">${r.nama ? `<div><span class="font-semibold text-slate-800">${r.nama}</span><span class="text-xs text-slate-400 ml-1">— ${r.mapel}</span></div>` : '<span class="text-slate-300 text-sm">Belum ditentukan</span>'}</td>
+    <td class="px-3 py-2.5 text-center">${r.kode ? `<span class="font-extrabold text-brand-700">${r.kode}</span>` : '—'}</td>
+  </tr>`).join('') || '<tr><td colspan="3" class="text-center text-slate-400 py-6">Tidak ditemukan</td></tr>';
+}
+
+function renderPiketPublik() {
+  const cont = document.getElementById('piketPublikContent');
+  cont.innerHTML = HARI.map(hari => {
+    const slotList = (D.piket || {})[hari] || [];
+    const namaHari = HARI_LENGKAP[hari];
+    // Filter hanya slot yang terisi
+    const filled = slotList.filter(s => s && (s.kode || (typeof s === 'string' && s)));
+    if (!filled.length) {
+      return `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
+        <div class="font-bold text-base text-brand-700 dark:text-brand-400 mb-3">📅 ${namaHari}</div>
+        <div class="text-sm text-slate-400 dark:text-slate-500 italic">Belum ada data piket</div>
+      </div>`;
+    }
+    const items = filled.map((s, i) => {
+      // Support format lama (string) maupun format baru (object)
+      const kode     = typeof s === 'object' ? s.kode : s;
+      const isPinned = typeof s === 'object' ? s.pin  : false;
+      const ket      = typeof s === 'object' ? (s.ket || '') : '';
+      if (!kode) return '';
+
+      // Cek guru dulu, lalu karyawan
+      const isKaryawan = String(kode).startsWith('k_');
+      let g, nama, subLabel;
+      if (isKaryawan) {
+        // Cari di array karyawan — cocokkan dengan trim dan string comparison
+        const karyawanList = Array.isArray(D.karyawan) ? D.karyawan : Object.values(D.karyawan || {});
+        g = karyawanList.find(k => String(k.id).trim() === String(kode).trim());
+        nama     = g ? g.nama : '(Karyawan)';
+        subLabel = g ? (g.jabatan || 'Karyawan') : 'Karyawan';
+      } else {
+        g = D.guru[String(kode)];
+        if (!g) return ''; // guru tidak dikenal, skip
+        nama     = g.nama;
+        subLabel = g.mapel || '';
+      }
+
+      return `<div class="flex items-start gap-3 rounded-xl px-3.5 py-2.5 ${isPinned
+        ? 'bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700'
+        : 'bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700'}">
+        <div class="mt-0.5 shrink-0 w-6 text-center">
+          ${isPinned
+            ? `<span class="text-base" title="Guru Utama Piket">📌</span>`
+            : `<span class="font-extrabold text-sm ${i < 9 ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400'}">${i+1}</span>`}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-sm ${isPinned ? 'text-brand-700 dark:text-brand-300' : 'text-slate-700 dark:text-slate-200'} truncate">
+            ${nama}
+            ${isPinned ? '<span class="ml-1.5 text-[10px] font-bold bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 px-1.5 py-0.5 rounded-full align-middle">Utama</span>' : ''}
+          </div>
+          ${subLabel ? `<div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">${subLabel}${isKaryawan ? ' <span class="inline-block ml-1 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-400 rounded text-[10px] font-medium">Karyawan</span>' : ''}</div>` : ''}
+          ${ket ? `<div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5 italic">${ket}</div>` : ''}
+        </div>
+        ${!isKaryawan ? `<span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">#${kode}</span>` : ''}
+      </div>`;
+    }).filter(Boolean).join('');
+
+    // Pisahkan guru utama (pin) dan reguler untuk tampilan
+    const pinnedCount = filled.filter(s => typeof s === 'object' && s.pin).length;
+    return `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <div class="font-bold text-base text-brand-700 dark:text-brand-400">📅 ${namaHari}</div>
+        <div class="flex items-center gap-2">
+          ${pinnedCount ? `<span class="text-[11px] font-bold bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded-full">📌 ${pinnedCount} Utama</span>` : ''}
+          <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-500">${filled.length} guru</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${items}</div>
+    </div>`;
+  }).join('');
+}
+
+function showTab(id, btn){
+  document.querySelectorAll('.tab-section').forEach(s=>{s.classList.add('hidden');s.classList.remove('block');});
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.remove('text-brand-700','border-brand-600');
+    b.classList.add('text-slate-500','border-transparent');
+  });
+  const target = document.getElementById('tab-'+id);
+  target.classList.remove('hidden');
+  target.classList.add('block');
+  if (btn) {
+    btn.classList.remove('text-slate-500','border-transparent');
+    btn.classList.add('text-brand-700','border-brand-600');
+  }
+  if(id==='hari-ini'){ initKelasSaya(); renderHariIni(); }
+  if(id==='jadwal-guru')renderJadwalGuru();
+  if(id==='jadwal-mapel'){ renderJadwalMapel(); }
+  if(id==='wali-kelas')renderWaliPublik();
+  if(id==='piket-guru')renderPiketPublik();
+  if(id==='pengumuman')renderPengumumanPublik();
+  if(id==='kalender')renderKalender();
+}
+
+fetchData();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW registered:', r.scope))
+      .catch(e => console.log('SW error:', e));
+  });
+}
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────
+
+let deferredPrompt = null;
+const PWA_DISMISSED_KEY = 'pwa_dismissed_until';
+const PWA_INSTALLED_KEY = 'pwa_installed';
+
+// Tangkap event install dari browser (Chrome/Edge Android & Desktop)
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Tunda munculnya popup 3 detik setelah halaman siap
+  setTimeout(() => maybeShowPwa(), 3000);
+});
+
+// Deteksi sudah terinstall
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem(PWA_INSTALLED_KEY, '1');
+  hidePwaPopup();
+  deferredPrompt = null;
+});
+
+function isIos() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+}
+
+function maybeShowPwa() {
+  // Jangan tampilkan kalau sudah install, atau sudah dismiss < 7 hari
+  if (localStorage.getItem(PWA_INSTALLED_KEY)) return;
+  if (isInStandaloneMode()) return;
+  const until = parseInt(localStorage.getItem(PWA_DISMISSED_KEY) || '0');
+  if (Date.now() < until) return;
+
+  // iOS Safari — tidak ada beforeinstallprompt, tampilkan panduan manual
+  if (isIos() && !deferredPrompt) {
+    document.getElementById('pwaInstallBtn').style.display = 'none';
+    document.getElementById('iosGuide').classList.remove('hidden');
+  }
+
+  showPwaPopup();
+}
+
+function showPwaPopup() {
+  const popup = document.getElementById('pwaPopup');
+  popup.classList.remove('hidden');
+  // Tutup saat klik backdrop
+  document.getElementById('pwaBackdrop').onclick = () => dismissPwa(false);
+}
+
+function hidePwaPopup() {
+  document.getElementById('pwaPopup').classList.add('hidden');
+}
+
+function dismissPwa(permanent) {
+  hidePwaPopup();
+  if (permanent) {
+    // Jangan tampilkan lagi selama 7 hari
+    localStorage.setItem(PWA_DISMISSED_KEY, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  }
+}
+
+async function doInstall() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    localStorage.setItem(PWA_INSTALLED_KEY, '1');
+  } else {
+    dismissPwa(true);
+  }
+  deferredPrompt = null;
+  hidePwaPopup();
+}
+
+// iOS: muncul otomatis setelah 3 detik (karena tidak ada beforeinstallprompt)
+if (isIos() && !isInStandaloneMode()) {
+  setTimeout(() => maybeShowPwa(), 3000);
+}
+</script>
+<!-- PWA INSTALL POPUP -->
+<div id="pwaPopup" class="hidden fixed inset-0 z-[300] flex items-end sm:items-center justify-center p-4 sm:p-6">
+  <!-- Backdrop -->
+  <div id="pwaBackdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+  <!-- Card -->
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-slide-up">
+    <!-- Header biru -->
+    <div class="bg-gradient-to-r from-brand-700 to-brand-600 px-5 pt-5 pb-8 text-white text-center">
+      <div class="w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg">📅</div>
+      <div class="font-bold text-lg leading-tight">Aplikasi Jadwal KBM</div>
+      <div class="text-brand-100 text-xs mt-1">Demo Sekolah</div>
+    </div>
+    <!-- Konten -->
+    <div class="px-5 pt-4 pb-2 -mt-4">
+      <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-md border border-slate-100 dark:border-slate-700">
+        <p class="text-sm text-slate-600 dark:text-slate-300 text-center mb-4 leading-relaxed">
+          Pasang aplikasi ini di perangkat kamu untuk akses lebih cepat — tanpa perlu buka browser!
+        </p>
+        <!-- Fitur-fitur -->
+        <div class="grid grid-cols-3 gap-2 mb-5 text-center">
+          <div class="bg-brand-50 dark:bg-brand-900/30 rounded-xl p-2.5">
+            <div class="text-xl mb-1">⚡</div>
+            <div class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 leading-tight">Lebih Cepat</div>
+          </div>
+          <div class="bg-brand-50 dark:bg-brand-900/30 rounded-xl p-2.5">
+            <div class="text-xl mb-1">📲</div>
+            <div class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 leading-tight">Layaknya App</div>
+          </div>
+          <div class="bg-brand-50 dark:bg-brand-900/30 rounded-xl p-2.5">
+            <div class="text-xl mb-1">🔔</div>
+            <div class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 leading-tight">Mudah Dibuka</div>
+          </div>
+        </div>
+        <!-- Tombol install -->
+        <button id="pwaInstallBtn" onclick="doInstall()"
+          class="w-full py-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-sm rounded-xl transition-all shadow-sm mb-2">
+          📲 Pasang Sekarang
+        </button>
+        <button onclick="dismissPwa(true)"
+          class="w-full py-2.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-medium text-sm rounded-xl transition-colors">
+          Nanti saja
+        </button>
+      </div>
+    </div>
+    <!-- iOS guide (tersembunyi, hanya muncul di Safari iOS) -->
+    <div id="iosGuide" class="hidden px-5 pb-5">
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 mt-1">
+        <p class="text-xs text-amber-800 dark:text-amber-300 font-semibold mb-2">Cara pasang di iPhone / iPad:</p>
+        <ol class="text-xs text-amber-700 dark:text-amber-400 space-y-1.5 list-none">
+          <li>1. Ketuk ikon <strong>Bagikan</strong> <span class="text-base">⬆️</span> di Safari</li>
+          <li>2. Pilih <strong>"Tambahkan ke Layar Utama"</strong></li>
+          <li>3. Ketuk <strong>Tambahkan</strong></li>
+        </ol>
+      </div>
+    </div>
+    <!-- Tutup -->
+    <button onclick="dismissPwa(true)" class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-sm transition-colors">✕</button>
+  </div>
+</div>
+
+<style>
+@keyframes slide-up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.animate-slide-up{animation:slide-up .3s cubic-bezier(.34,1.56,.64,1) both}
+</style>
+
+</body></html>

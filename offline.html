@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tidak Ada Koneksi — Jadwal KBM SMANSABA</title>
+<meta name="theme-color" content="#1a4078">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,Arial,sans-serif;
+    background:#f0f4f8;color:#1a202c;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  header{
+    background:linear-gradient(to right,#1a4078,#2b63b3);
+    color:#fff;padding:14px 20px;
+    display:flex;align-items:center;gap:12px;
+  }
+  header h1{font-size:17px;font-weight:700}
+  header p{font-size:12px;opacity:.8;margin-top:2px}
+  main{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:32px 20px;text-align:center;
+  }
+  .card{
+    background:#fff;border-radius:20px;
+    padding:40px 32px;max-width:400px;width:100%;
+    box-shadow:0 4px 24px rgba(0,0,0,.08);
+  }
+  .illustration{margin-bottom:24px}
+  h2{font-size:22px;font-weight:700;color:#1a202c;margin-bottom:10px}
+  p{font-size:14px;color:#718096;line-height:1.7;margin-bottom:24px}
+  .btn{
+    display:block;width:100%;padding:13px;
+    background:#1a4078;color:#fff;
+    border:none;border-radius:12px;
+    font-size:14px;font-weight:700;cursor:pointer;
+    transition:background .2s;margin-bottom:10px;
+    text-decoration:none;
+  }
+  .btn:hover{background:#163562}
+  .btn-outline{
+    background:transparent;color:#1a4078;
+    border:2px solid #1a4078;
+  }
+  .btn-outline:hover{background:#eaf1fb}
+  .status{
+    margin-top:20px;font-size:12px;color:#94a3b8;
+    min-height:18px;transition:color .3s;
+  }
+  .status.online{color:#15875c;font-weight:600}
+  @media(prefers-color-scheme:dark){
+    body{background:#0f172a;color:#e2e8f0}
+    .card{background:#1e293b;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+    h2{color:#f1f5f9}
+    p{color:#94a3b8}
+    .btn-outline{color:#93c5fd;border-color:#93c5fd}
+    .btn-outline:hover{background:#1e3a5f}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📅 Jadwal KBM SMANSABA</h1>
+    <p>SMA Negeri 1 Baturetno</p>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="illustration">
+      <svg width="140" height="110" viewBox="0 0 140 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Signal waves dengan tanda silang -->
+        <circle cx="70" cy="50" r="34" fill="#e8f0fb" stroke="#2b63b3" stroke-width="1.5" stroke-dasharray="4 2" opacity=".5"/>
+        <path d="M46 50 Q70 28 94 50" stroke="#2b63b3" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M53 57 Q70 42 87 57" stroke="#2b63b3" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="70" cy="65" r="4" fill="#2b63b3"/>
+        <!-- X merah -->
+        <circle cx="70" cy="50" r="16" fill="#fdecea" opacity=".9"/>
+        <line x1="62" y1="42" x2="78" y2="58" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="78" y1="42" x2="62" y2="58" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Awan di bawah -->
+        <ellipse cx="70" cy="95" rx="35" ry="6" fill="#e2e8f0" opacity=".5"/>
+        <rect x="50" y="80" width="40" height="16" rx="5" fill="#e2e8f0" opacity=".7"/>
+        <circle cx="55" cy="80" r="8" fill="#e2e8f0" opacity=".7"/>
+        <circle cx="65" cy="76" r="10" fill="#e2e8f0" opacity=".7"/>
+        <circle cx="78" cy="78" r="8" fill="#e2e8f0" opacity=".7"/>
+        <circle cx="88" cy="82" r="6" fill="#e2e8f0" opacity=".7"/>
+      </svg>
+    </div>
+
+    <h2>Tidak Ada Koneksi</h2>
+    <p>
+      Kamu sedang offline dan halaman jadwal belum tersimpan di cache.
+      Periksa koneksi internet lalu coba lagi.
+    </p>
+
+    <button class="btn" onclick="tryReload()">🔄 Coba Lagi</button>
+    <a class="btn btn-outline" href="/">← Kembali ke Beranda</a>
+
+    <div class="status" id="status">Mendeteksi koneksi...</div>
+  </div>
+</main>
+
+<script>
+  const statusEl = document.getElementById('status');
+
+  function updateStatus() {
+    if (navigator.onLine) {
+      statusEl.textContent = '✅ Koneksi tersedia! Memuat ulang...';
+      statusEl.className   = 'status online';
+      setTimeout(() => location.replace('/'), 800);
+    } else {
+      statusEl.textContent = 'Masih offline. Menunggu koneksi...';
+      statusEl.className   = 'status';
+    }
+  }
+
+  function tryReload() {
+    if (navigator.onLine) {
+      location.replace('/');
+    } else {
+      statusEl.textContent = 'Masih offline. Periksa koneksi Anda.';
+      statusEl.className   = 'status';
+      // Animasi tombol shake ringan
+      const btn = document.querySelector('.btn');
+      btn.style.transform = 'translateX(-4px)';
+      setTimeout(() => btn.style.transform = 'translateX(4px)', 100);
+      setTimeout(() => btn.style.transform = '', 200);
+    }
+  }
+
+  window.addEventListener('online',  updateStatus);
+  window.addEventListener('offline', updateStatus);
+  updateStatus();
+
+  // Cek berkala setiap 5 detik
+  setInterval(() => { if (navigator.onLine) updateStatus(); }, 5000);
+</script>
+</body>
+</html>
