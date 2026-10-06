@@ -329,9 +329,9 @@
           <div class="flex items-center gap-2 flex-1 min-w-[200px]">
             <span class="text-xl shrink-0">🧑‍🏫</span>
             <div class="flex-1">
-              <div class="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-1">GURU SAYA</div>
+              <div class="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-1">JADWAL MENGAJAR SAYA</div>
               <select id="filterGuruSaya" onchange="simpanGuruSaya()" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 text-sm px-3 py-2 bg-white dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="">— Pilih nama saya —</option>
+                <option value="">— Pilih nama guru —</option>
               </select>
             </div>
           </div>
@@ -1434,10 +1434,10 @@ function initGuruSaya() {
   const sel = document.getElementById('filterGuruSaya');
   if (!sel) return;
 
-  // Isi dropdown dengan semua guru (urutan alfabet nama)
-  const sorted = Object.entries(D.guru).sort((a,b)=>a[1].nama.localeCompare(b[1].nama));
-  sel.innerHTML = '<option value="">— Pilih nama saya —</option>' +
-    sorted.map(([kode,g]) => `<option value="${kode}">${g.nama} — ${g.mapel}</option>`).join('');
+  // Isi dropdown dengan semua guru (urutan kode, format sama seperti tab Jadwal Guru)
+  const sorted = Object.entries(D.guru).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  sel.innerHTML = '<option value="">— Pilih nama guru —</option>' +
+    sorted.map(([kode,g]) => `<option value="${kode}">[${kode}] ${g.nama} — ${g.mapel}</option>`).join('');
 
   // Restore pilihan dari localStorage
   const saved = localStorage.getItem('guruSaya');
