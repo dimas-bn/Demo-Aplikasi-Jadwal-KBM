@@ -228,6 +228,12 @@
   html:not(.dark) .text-slate-500{color:#475569 !important}
   .dark .text-slate-400{color:#94a3b8 !important}
   .dark .text-slate-500{color:#a8b6cb !important}
+
+  /* ── KONTRAS DARK MODE & JADWAL GURU ── */
+  /* Angka/kode biru tua dinaikkan agar terbaca di dark mode */
+  .dark .text-brand-600,.dark .text-brand-700{color:#a3c4ec !important}
+  /* Teks di dalam kotak pastel (slot) selalu gelap, termasuk di dark mode */
+  .slot .text-slate-600,.slot .text-slate-700,.slot .text-slate-900{color:#0f172a !important}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-[15px] min-h-screen transition-colors duration-200">
@@ -1116,6 +1122,8 @@ async function fetchData() {
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('headerSub').textContent = 'Demo Sekolah — Tahun Ajaran Sekarang';
   initSelects();
+  pulihkanPilihan();
+  pasangPenyimpanPilihan();
   initKelasSaya();
   initGuruSaya();
   renderHariIni();
@@ -1125,6 +1133,34 @@ async function fetchData() {
   // Tick jam setiap detik
   tickJam();
   setInterval(tickJam, 1000);
+}
+
+// ── INGAT PILIHAN TERAKHIR (localStorage) ─────────────────────
+const PILIHAN_IDS = ['filterKelas','filterHari','filterGuru','filterMapel','filterHariMapel'];
+
+function simpanPilihan(id) {
+  try {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem('pilihan_' + id, el.value);
+  } catch (e) {}
+}
+
+function pulihkanPilihan() {
+  PILIHAN_IDS.forEach(id => {
+    try {
+      const el = document.getElementById(id);
+      const v  = localStorage.getItem('pilihan_' + id);
+      // Pulihkan hanya kalau pilihan itu masih ada di daftar
+      if (el && v !== null && [...el.options].some(o => o.value === v)) el.value = v;
+    } catch (e) {}
+  });
+}
+
+function pasangPenyimpanPilihan() {
+  PILIHAN_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => simpanPilihan(id));
+  });
 }
 
 function initSelects() {
@@ -1293,8 +1329,8 @@ function renderJadwalGuru() {
       if(foundKelas){
         html+=`<td class="px-2 py-2">
           <div class="slot rounded-md px-2 py-2 cursor-pointer ${isConf?'ring-2 ring-red-500':''}" style="background:${COLORS[i%15]};border-left:3px solid ${BORDERS[i%15]}" onclick="showDetail('${hari}',${jam},'${foundKelas}',${kode})">
-            <div class="font-bold text-xs leading-tight truncate" style="color:${BORDERS[i%15]}cc">${g.mapel}</div>
-            <div class="text-[11px] text-slate-600 truncate">${foundKelas.replace('KELAS ','')}</div>
+            <div class="font-extrabold text-base leading-tight text-slate-900">${foundKelas.replace('KELAS ','')}</div>
+            <div class="font-semibold text-xs leading-tight text-slate-700 truncate mt-0.5">${g.mapel}</div>
           </div></td>`;
       } else {html+=`<td class="px-2 py-2"><div class="h-[40px] rounded-md bg-slate-50"></div></td>`;}
     });
