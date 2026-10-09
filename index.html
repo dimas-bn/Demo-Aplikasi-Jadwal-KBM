@@ -213,6 +213,21 @@
 
   /* Wali kelas table */
   .dark .divide-y>tr{border-color:#1e293b !important}
+
+  /* ── KETERBACAAN TEKS (pengguna 40+) ── */
+  /* Ukuran: teks kecil dinaikkan sedikit */
+  .text-xs{font-size:.8125rem !important;line-height:1.25rem !important}
+  .text-sm{font-size:.9375rem !important;line-height:1.4rem !important}
+  .text-\[9px\]{font-size:11px !important}
+  .text-\[10px\]{font-size:12px !important}
+  .text-\[11px\]{font-size:12.5px !important}
+  /* Ketebalan: teks tanpa kelas font-weight sendiri tidak lagi terlalu tipis */
+  .text-xs,.text-sm{font-weight:500}
+  /* Kontras: abu-abu pucat dipekatkan (mode terang) / dicerahkan (mode gelap) */
+  html:not(.dark) .text-slate-400{color:#64748b !important}
+  html:not(.dark) .text-slate-500{color:#475569 !important}
+  .dark .text-slate-400{color:#94a3b8 !important}
+  .dark .text-slate-500{color:#a8b6cb !important}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-[15px] min-h-screen transition-colors duration-200">
